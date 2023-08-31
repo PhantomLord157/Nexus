@@ -1,5 +1,5 @@
 local v0 = loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomLord157/ProjectBullShit/main/UILibrary.lua"))();
-local v1 = v0.CreateLib("卐 Operation Nexus V 1.3.7  卍", "DarkTheme");
+local v1 = v0.CreateLib("卐 Operation Nexus V 1.4  卍", "DarkTheme");
 local v2 = v1:NewTab("ESP");
 local v3 = v2:NewSection("ESP");
 v3:NewButton("ESP", "Shows enemy player chams, health, name, and distance from you.", function()
@@ -8,82 +8,82 @@ v3:NewButton("ESP", "Shows enemy player chams, health, name, and distance from y
 	local v18 = Instance.new("Highlight");
 	v18.Name = "Highlight";
 	local v20 = Color3.new(2 - 1, 0 - 0, 0 - 0);
-	local function v21(v85, v86)
-		if (v85 and not v85:FindFirstChild("HumanoidRootPart"):FindFirstChild("Highlight")) then
-			local v127 = v18:Clone();
-			v127.Adornee = v85;
-			v127.Parent = v85:FindFirstChild("HumanoidRootPart");
-			v127.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop;
-			v127.Color3 = v86;
-			v127.Name = "Highlight";
+	local function v21(v73, v74)
+		if (v73 and not v73:FindFirstChild("HumanoidRootPart"):FindFirstChild("Highlight")) then
+			local v112 = v18:Clone();
+			v112.Adornee = v73;
+			v112.Parent = v73:FindFirstChild("HumanoidRootPart");
+			v112.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop;
+			v112.Color3 = v74;
+			v112.Name = "Highlight";
 		end
 	end
 	local function v22()
-		local v87 = v16.Character and v16.Character.HumanoidRootPart.Position;
-		if not v87 then
+		local v75 = v16.Character and v16.Character.HumanoidRootPart.Position;
+		if not v75 then
 			return;
 		end
-		for v120, v121 in pairs(game.Players:GetPlayers()) do
-			if (v121 ~= v16) then
-				local v144 = v121.Character;
-				local v145 = v144 and v144:FindFirstChild("Humanoid");
-				local v146 = v144 and v144:FindFirstChild("Head");
-				local v147 = v146 and v146:FindFirstChild("PlayerLabel");
-				if (v145 and v146 and (v145.Health > (0 - 0))) then
-					local v161 = (v146.Position - v16.Character.Head.Position).Magnitude;
-					if not v147 then
-						v147 = Instance.new("BillboardGui");
-						v147.Name = "PlayerLabel";
-						v147.AlwaysOnTop = true;
-						v147.ExtentsOffset = Vector3.new(619 - (555 + 64), 934 - (857 + 74), 568 - (367 + 201));
-						v147.Size = UDim2.new(927 - (214 + 713), 26 + 74, 0 + 0, 907 - (282 + 595));
-						local v176 = Instance.new("TextLabel");
-						v176.Name = "NameLabel";
-						v176.BackgroundTransparency = 1638 - (1523 + 114);
-						v176.Position = UDim2.new(0 + 0, 0 - 0, 1065 - (68 + 997), 1270 - (226 + 1044));
-						v176.Size = UDim2.new(4 - 3, 117 - (32 + 85), 0.5 + 0, 0 + 0);
-						v176.Text = "";
-						v176.TextColor3 = Color3.new(958 - (892 + 65), 2 - 1, 1 - 0);
-						v176.Font = Enum.Font.SourceSansBold;
-						v176.TextSize = 32 - 14;
-						v176.Parent = v147;
-						local v187 = Instance.new("TextLabel");
-						v187.Name = "HealthLabel";
-						v187.BackgroundTransparency = 351 - (87 + 263);
-						v187.Position = UDim2.new(180 - (67 + 113), 0 + 0, 0.5 - 0, 0 + 0);
-						v187.Size = UDim2.new(3 - 2, 952 - (802 + 150), 0.5 - 0, 0 - 0);
-						v187.Text = "";
-						v187.TextColor3 = Color3.new(1 + 0, 998 - (915 + 82), 2 - 1);
-						v187.Font = Enum.Font.SourceSansBold;
-						v187.TextSize = 11 + 7;
-						v187.Parent = v147;
-						v147.Parent = v146;
+		for v107, v108 in pairs(game.Players:GetPlayers()) do
+			if (v108 ~= v16) then
+				local v125 = v108.Character;
+				local v126 = v125 and v125:FindFirstChild("Humanoid");
+				local v127 = v125 and v125:FindFirstChild("Head");
+				local v128 = v127 and v127:FindFirstChild("PlayerLabel");
+				if (v126 and v127 and (v126.Health > (0 - 0))) then
+					local v136 = (v127.Position - v16.Character.Head.Position).Magnitude;
+					if not v128 then
+						v128 = Instance.new("BillboardGui");
+						v128.Name = "PlayerLabel";
+						v128.AlwaysOnTop = true;
+						v128.ExtentsOffset = Vector3.new(619 - (555 + 64), 934 - (857 + 74), 568 - (367 + 201));
+						v128.Size = UDim2.new(927 - (214 + 713), 26 + 74, 0 + 0, 907 - (282 + 595));
+						local v149 = Instance.new("TextLabel");
+						v149.Name = "NameLabel";
+						v149.BackgroundTransparency = 1638 - (1523 + 114);
+						v149.Position = UDim2.new(0 + 0, 0 - 0, 1065 - (68 + 997), 1270 - (226 + 1044));
+						v149.Size = UDim2.new(4 - 3, 117 - (32 + 85), 0.5 + 0, 0 + 0);
+						v149.Text = "";
+						v149.TextColor3 = Color3.new(958 - (892 + 65), 2 - 1, 1 - 0);
+						v149.Font = Enum.Font.SourceSansBold;
+						v149.TextSize = 32 - 14;
+						v149.Parent = v128;
+						local v160 = Instance.new("TextLabel");
+						v160.Name = "HealthLabel";
+						v160.BackgroundTransparency = 351 - (87 + 263);
+						v160.Position = UDim2.new(180 - (67 + 113), 0 + 0, 0.5 - 0, 0 + 0);
+						v160.Size = UDim2.new(3 - 2, 952 - (802 + 150), 0.5 - 0, 0 - 0);
+						v160.Text = "";
+						v160.TextColor3 = Color3.new(1 + 0, 998 - (915 + 82), 2 - 1);
+						v160.Font = Enum.Font.SourceSansBold;
+						v160.TextSize = 11 + 7;
+						v160.Parent = v128;
+						v128.Parent = v127;
 					end
-					v147.NameLabel.Text = v121.Name;
-					v147.HealthLabel.Text = string.format("Distance: %.2f | Health: %d", v161, v145.Health);
-					v147.Adornee = v146;
-					v21(v144, v20);
-				elseif v147 then
-					v147:Destroy();
+					v128.NameLabel.Text = v108.Name;
+					v128.HealthLabel.Text = string.format("Distance: %.2f | Health: %d", v136, v126.Health);
+					v128.Adornee = v127;
+					v21(v125, v20);
+				elseif v128 then
+					v128:Destroy();
 				end
 			end
 		end
 	end
-	local function v23(v88)
+	local function v23(v76)
 		repeat
 			wait();
-		until v88.Character 
+		until v76.Character 
 		v22();
 	end
 	game.Players.PlayerAdded:Connect(v23);
-	game.Players.PlayerRemoving:Connect(function(v89)
-		local v90 = v89.Character;
-		if v90 then
-			local v134 = v90:FindFirstChild("HumanoidRootPart");
-			if v134 then
-				local v151 = v134:FindFirstChild("Highlight");
-				if v151 then
-					v151:Destroy();
+	game.Players.PlayerRemoving:Connect(function(v77)
+		local v78 = v77.Character;
+		if v78 then
+			local v119 = v78:FindFirstChild("HumanoidRootPart");
+			if v119 then
+				local v130 = v119:FindFirstChild("Highlight");
+				if v130 then
+					v130:Destroy();
 				end
 			end
 		end
@@ -109,312 +109,202 @@ v5:NewButton("Add Aimbot", "Click This For Aimbot To Work", function()
 	local v31 = game:GetService("UserInputService");
 	local v32 = game:GetService("TweenService");
 	local v33 = false;
-	_G.AimbotEnabled = true;
-	_G.TeamCheck = true;
-	_G.AimPart = "Head";
-	_G.Sensitivity = 0 + 0;
-	_G.CircleSides = 855 - (368 + 423);
-	_G.CircleColor = Color3.fromRGB(801 - 546, 273 - (10 + 8), 980 - 725);
-	_G.CircleTransparency = 442.7 - (416 + 26);
-	_G.CircleRadius = 255 - 175;
-	_G.CircleFilled = false;
-	_G.CircleVisible = true;
-	_G.CircleThickness = 0 + 0;
-	local v34 = Drawing.new("Circle");
-	v34.Position = Vector2.new(v29.ViewportSize.X / (3 - 1), v29.ViewportSize.Y / (440 - (145 + 293)));
-	v34.Radius = _G.CircleRadius;
-	v34.Filled = _G.CircleFilled;
-	v34.Color = _G.CircleColor;
-	v34.Visible = _G.CircleVisible;
-	v34.Transparency = _G.CircleTransparency;
-	v34.NumSides = _G.CircleSides;
-	v34.Thickness = _G.CircleThickness;
-	local function v43()
-		local v91 = _G.CircleRadius;
-		local v92 = nil;
-		local v93 = math.huge;
-		for v122, v123 in next, v27:GetPlayers() do
-			if (v123.Name ~= v28.Name) then
-				if (_G.TeamCheck == true) then
-					if (v123.Team ~= v28.Team) then
-						if v123.Character then
-							local v199 = v123.Character:FindFirstChild("HumanoidRootPart");
-							if v199 then
-								local v201 = v199.Position - v29.CFrame.Position;
-								local v202 = math.acos(v29.CFrame.LookVector:Dot(v201.Unit));
-								local v203 = math.rad(475 - (44 + 386));
-								if (v202 < v203) then
-									local v206 = v123.Character:FindFirstChild("Humanoid");
-									if (v206 and (v206.Health > (1486 - (998 + 488)))) then
-										local v207 = v29:WorldToScreenPoint(v199.Position);
-										local v208 = (Vector2.new(v31:GetMouseLocation().X, v31:GetMouseLocation().Y) - Vector2.new(v207.X, v207.Y)).Magnitude;
-										if ((v208 < v91) and (v208 < v93)) then
-											v92 = v123;
-											v93 = v208;
-										end
-									end
-								end
-							end
+	AimbotEnabled = true;
+	TeamCheck = true;
+	local v34 = "Head";
+	Sensitivity = 0 + 0;
+	local v35 = 803 - (368 + 423);
+	CircleColor = Color3.fromRGB(801 - 546, 273 - (10 + 8), 980 - 725);
+	local v36 = 442.7 - (416 + 26);
+	CircleRadius = 255 - 175;
+	local v37 = false;
+	local v38 = true;
+	local v39 = 0 + 0;
+	local v40 = Drawing.new("Circle");
+	v40.Filled = v37;
+	v40.Visible = v38;
+	v40.Transparency = v36;
+	v40.Thickness = v39;
+	function IsInFrontOfCamera(v79)
+		local v80 = v29.CFrame;
+		local v81 = v79.Position;
+		local v82 = v80.LookVector;
+		local v83 = (v81 - v80.Position).Unit;
+		return v82:Dot(v83) > (0 - 0);
+	end
+	function GetClosestPlayer()
+		local v84 = CircleRadius;
+		local v85 = nil;
+		local v86 = math.huge;
+		local v87 = Vector2.new(v29.ViewportSize.X / (440 - (145 + 293)), v29.ViewportSize.Y / (432 - (44 + 386)));
+		for v109, v110 in pairs(v27:GetPlayers()) do
+			if ((v110 ~= v28) and (not TeamCheck or (v110.Team ~= v28.Team))) then
+				local v129 = v110.Character;
+				if v129 then
+					local v141 = v129:FindFirstChild("HumanoidRootPart");
+					if v141 then
+						local v171 = v29:WorldToScreenPoint(v141.Position);
+						local v172 = (v87 - Vector2.new(v171.X, v171.Y)).Magnitude;
+						if ((v172 < v84) and (v172 < v86) and IsInFrontOfCamera(v141)) then
+							v86 = v172;
+							v85 = v110;
 						end
 					end
-				elseif v123.Character then
-					local v198 = v123.Character:FindFirstChild("HumanoidRootPart");
-					if v198 then
-						local v200 = v123.Character:FindFirstChild("Humanoid");
-						if (v200 and (v200.Health > (0 + 0))) then
-							local v204 = v29:WorldToScreenPoint(v198.Position);
-							local v205 = (Vector2.new(v31:GetMouseLocation().X, v31:GetMouseLocation().Y) - Vector2.new(v204.X, v204.Y)).Magnitude;
-							if (v205 < v91) then
-								v92 = v123;
-							end
-						end
-					end
-					return v92;
 				end
 			end
 		end
-		return v92;
+		return v85;
 	end
-	v31.InputBegan:Connect(function(v94)
-		if (v94.UserInputType == Enum.UserInputType.MouseButton2) then
+	v31.InputBegan:Connect(function(v88)
+		if (v88.UserInputType == Enum.UserInputType.MouseButton2) then
 			v33 = true;
 		end
 	end);
-	v31.InputEnded:Connect(function(v95)
-		if (v95.UserInputType == Enum.UserInputType.MouseButton2) then
+	v31.InputEnded:Connect(function(v89)
+		if (v89.UserInputType == Enum.UserInputType.MouseButton2) then
 			v33 = false;
 		end
 	end);
 	v30.RenderStepped:Connect(function()
-		v34.Position = Vector2.new(v31:GetMouseLocation().X, v31:GetMouseLocation().Y);
-		v34.Radius = _G.CircleRadius;
-		v34.Filled = _G.CircleFilled;
-		v34.Color = _G.CircleColor;
-		v34.Visible = _G.CircleVisible;
-		v34.Transparency = _G.CircleTransparency;
-		v34.NumSides = _G.CircleSides;
-		v34.Thickness = _G.CircleThickness;
-		if (v33 and _G.AimbotEnabled) then
-			local v135 = v43();
-			if v135 then
-				local v152 = v135.Character[_G.AimPart];
-				if v152 then
-					local v169 = v152.Position;
-					local v170 = (v169 - v29.CFrame.Position).Unit;
-					local v171 = CFrame.new(v29.CFrame.Position, v29.CFrame.Position + v170);
-					v32:Create(v29, TweenInfo.new(_G.Sensitivity, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {CFrame=v171}):Play();
+		v40.Position = Vector2.new(v31:GetMouseLocation().X, v31:GetMouseLocation().Y);
+		v40.Radius = CircleRadius;
+		v40.Color = CircleColor;
+		v40.Visible = v38;
+		v40.Transparency = v36;
+		v40.NumSides = v35;
+		v40.Thickness = v39;
+		if (v33 and AimbotEnabled) then
+			local v120 = GetClosestPlayer();
+			if v120 then
+				local v131 = v120.Character and v120.Character[v34];
+				if v131 then
+					local v142 = v131.Position;
+					local v143 = (v142 - v29.CFrame.Position).Unit;
+					local v144 = CFrame.new(v29.CFrame.Position, v29.CFrame.Position + v143);
+					v32:Create(v29, TweenInfo.new(Sensitivity, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {CFrame=v144}):Play();
 				end
 			end
 		end
 	end);
 end);
-v5:NewButton("Silent Aim", "Never Miss", function()
-	local v44 = game.Players.LocalPlayer;
-	local v45 = game:GetService("UserInputService");
-	local v46 = v44.Camera.CFrame;
-	local v47 = false;
-	local function v48()
-		local v104 = nil;
-		local v105 = math.huge;
-		for v124, v125 in pairs(game.Players:GetPlayers()) do
-			if (v125 ~= v44) then
-				local v148 = v125.Character;
-				local v149 = v148 and v148:FindFirstChild("Humanoid");
-				local v150 = v148 and v148:FindFirstChild("Head");
-				if (v149 and v150 and (v149.Health > (0 + 0))) then
-					local v166 = (v150.Position - v44.Character.Head.Position).Magnitude;
-					local v167 = math.acos(v44.Character.Head.CFrame.lookVector:Dot((v150.Position - v44.Character.Head.Position).unit));
-					local v168 = math.rad(817 - (201 + 571));
-					if ((v167 < v168) and (v166 < v105)) then
-						v104 = v125;
-						v105 = v166;
-					end
-				end
-			end
-		end
-		if (v104 and v47) then
-			local v136 = v104.Character;
-			local v137 = v136:FindFirstChild("Humanoid");
-			if (v136 and v137 and (v137.Health > (1138 - (116 + 1022)))) then
-				local v153 = (v136.Head.Position - v44.Character.Head.Position).unit;
-				bulletSpeed = 4163 - 3163;
-				local v154 = v44.Character.Head.Position + (v153 * (30 + 20));
-				print("Bullet hit at position:", v154);
-			end
-			v44.Camera.CFrame = v46;
-			v47 = false;
-		end
-	end
-	local function v49(v106)
-		if (v106.UserInputType == Enum.UserInputType.MouseButton1) then
-			if (v106.UserInputState == Enum.UserInputState.Begin) then
-				v47 = true;
-				v46 = v44.Camera.CFrame;
-			end
-		end
-	end
-	local function v50(v107)
-		repeat
-			wait();
-		until v107.Character 
-		v48();
-	end
-	game.Players.PlayerAdded:Connect(v50);
-	game.Players.PlayerRemoving:Connect(function(v108)
-		local v109 = v108.Character;
-		if v109 then
-			local v139 = v109:FindFirstChild("HumanoidRootPart");
-			if v139 then
-				local v156 = v139:FindFirstChild("Highlight");
-				if v156 then
-					v156:Destroy();
-				end
-			end
-		end
-	end);
-	v45.InputChanged:Connect(v49);
-	game:GetService("RunService").Heartbeat:Connect(function()
-		if v47 then
-			v48();
-		end
-	end);
+v6:NewToggle("Enable Aimbot", "Enables Aimbot", function(v45)
+	AimbotEnabled = v45;
 end);
-v6:NewToggle("Enable Aimbot", "Enables Aimbot", function(v51)
-	_G.AimbotEnabled = v51;
+v6:NewToggle("Enable Team Check", "Enables Team Check", function(v46)
+	TeamCheck = v46;
 end);
-v6:NewToggle("Enable Team Check", "Enables Team Check", function(v52)
-	_G.TeamCheck = v52;
+v6:NewSlider("Aimlock Speed", "The Lower The Number The Faster The Lock", 1487 - (998 + 488), 0 + 0, function(v47)
+	Sensitivity = v47;
 end);
-v6:NewSlider("Aimlock Speed", "The Lower The Number The Faster The Lock", 3 - 2, 0 - 0, function(v53)
-	_G.Sensitivity = v53;
+v7:NewColorPicker("FOV Color", "Changes The FOV Color", Color3.fromRGB(0 + 0, 772 - (201 + 571), 1138 - (116 + 1022)), function(v48)
+	CircleColor = v48;
 end);
-v6:NewSlider("Bullet Speed", "Change to the bullets speed", 5859 - (814 + 45), 0 - 0, function(v54)
-	bulletSpeed = v54;
-end);
-v7:NewSlider("FOV Size", "Changes The Size Of The FOV", 54 + 946, 0 + 0, function(v55)
-	_G.CircleRadius = v55;
-end);
-v7:NewSlider("FOV Sides", "Changes The Amount Of Sides The FOV Has", 985 - (261 + 624), 0 - 0, function(v56)
-	_G.CircleSides = v56;
-end);
-v7:NewSlider("FOV Transparency", "Changes The Transparency Of The FOV", 1082 - (1020 + 60), 1423 - (630 + 793), function(v57)
-	_G.CircleTransparency = v57;
-end);
-v7:NewSlider("FOV Thickness", "Changes The Thickness Of The FOV", 101 - 71, 0 - 0, function(v58)
-	_G.CircleThickness = v58;
-end);
-v7:NewToggle("FOV Filled", "You can't see where your aiming now retard", function(v59)
-	_G.CircleFilled = v59;
-end);
-v7:NewToggle("FOV Visible", "Great Now You Dont Know Where You Gonna Lock", function(v60)
-	_G.CircleVisible = v60;
-end);
-v7:NewColorPicker("FOV Color", "Changes The FOV Color", Color3.fromRGB(0 + 0, 0 - 0, 1747 - (760 + 987)), function(v61)
-	_G.CircleColor = v61;
+v7:NewSlider("FOV Size", "Changes the size of the FOV.", 0 - 0, 294 + 206, function(v49)
+	CircleRadius = v49;
 end);
 local v8 = v1:NewTab("CrossHair");
 local v9 = v8:NewSection("Crosshair Settings");
 v9:NewButton("Add Crosshair", "Its A CrossHair", function()
-	local function v62()
+	local function v50()
 		if (Drawing == nil) then
 			return "No";
 		else
 			return "Yes";
 		end
 	end
-	local v63 = v62();
-	if (v63 == "No") then
+	local v51 = v50();
+	if (v51 == "No") then
 		game:GetService("StarterGui"):SetCore("SendNotification", {Title="Exunys Developer",Text="Crosshair script could not be loaded because your exploit is unsupported.",Duration=math.huge,Button1="OK"});
 		return;
 	end
-	local v64 = game:GetService("Players");
-	local v65 = game:GetService("RunService");
-	local v66 = game:GetService("UserInputService");
-	local v67 = workspace.CurrentCamera;
-	local v68 = false;
-	local v69 = v67.ViewportSize / (1915 - (1789 + 124));
-	local v70, v71 = v69.X, v69.Y;
-	local v72 = Drawing.new("Line");
-	local v73 = Drawing.new("Line");
+	local v52 = game:GetService("Players");
+	local v53 = game:GetService("RunService");
+	local v54 = game:GetService("UserInputService");
+	local v55 = workspace.CurrentCamera;
+	local v56 = false;
+	local v57 = v55.ViewportSize / (7 - 5);
+	local v58, v59 = v57.X, v57.Y;
+	local v60 = Drawing.new("Line");
+	local v61 = Drawing.new("Line");
 	_G.SendNotifications = true;
 	_G.DefaultSettings = false;
 	_G.ToMouse = true;
 	_G.CrosshairVisible = true;
-	_G.CrosshairSize = 786 - (745 + 21);
-	_G.CrosshairThickness = 1 + 0;
-	_G.CrosshairColor = Color3.fromRGB(0 - 0, 1000 - 745, 0 + 0);
-	_G.CrosshairTransparency = 1 + 0;
+	_G.CrosshairSize = 71 - 51;
+	_G.CrosshairThickness = 860 - (814 + 45);
+	_G.CrosshairColor = Color3.fromRGB(0 - 0, 14 + 241, 0 + 0);
+	_G.CrosshairTransparency = 886 - (261 + 624);
 	_G.DisableKey = Enum.KeyCode.Q;
-	v65.RenderStepped:Connect(function()
-		local v110 = _G.CrosshairSize / (1057 - (87 + 968));
-		v72.Color = _G.CrosshairColor;
-		v72.Thickness = _G.CrosshairThickness;
-		v72.Visible = _G.CrosshairVisible;
-		v72.Transparency = _G.CrosshairTransparency;
-		v73.Color = _G.CrosshairColor;
-		v73.Thickness = _G.CrosshairThickness;
-		v73.Visible = _G.CrosshairVisible;
-		v73.Transparency = _G.CrosshairTransparency;
+	v53.RenderStepped:Connect(function()
+		local v97 = _G.CrosshairSize / (3 - 1);
+		v60.Color = _G.CrosshairColor;
+		v60.Thickness = _G.CrosshairThickness;
+		v60.Visible = _G.CrosshairVisible;
+		v60.Transparency = _G.CrosshairTransparency;
+		v61.Color = _G.CrosshairColor;
+		v61.Thickness = _G.CrosshairThickness;
+		v61.Visible = _G.CrosshairVisible;
+		v61.Transparency = _G.CrosshairTransparency;
 		if (_G.ToMouse == true) then
-			v72.From = Vector2.new(v66:GetMouseLocation().X - v110, v66:GetMouseLocation().Y);
-			v72.To = Vector2.new(v66:GetMouseLocation().X + v110, v66:GetMouseLocation().Y);
-			v73.From = Vector2.new(v66:GetMouseLocation().X, v66:GetMouseLocation().Y - v110);
-			v73.To = Vector2.new(v66:GetMouseLocation().X, v66:GetMouseLocation().Y + v110);
+			v60.From = Vector2.new(v54:GetMouseLocation().X - v97, v54:GetMouseLocation().Y);
+			v60.To = Vector2.new(v54:GetMouseLocation().X + v97, v54:GetMouseLocation().Y);
+			v61.From = Vector2.new(v54:GetMouseLocation().X, v54:GetMouseLocation().Y - v97);
+			v61.To = Vector2.new(v54:GetMouseLocation().X, v54:GetMouseLocation().Y + v97);
 		elseif (_G.ToMouse == false) then
-			v72.From = Vector2.new(v70 - v110, v71);
-			v72.To = Vector2.new(v70 + v110, v71);
-			v73.From = Vector2.new(v70, v71 - v110);
-			v73.To = Vector2.new(v70, v71 + v110);
+			v60.From = Vector2.new(v58 - v97, v59);
+			v60.To = Vector2.new(v58 + v97, v59);
+			v61.From = Vector2.new(v58, v59 - v97);
+			v61.To = Vector2.new(v58, v59 + v97);
 		end
 	end);
 	if (_G.DefaultSettings == true) then
 		_G.CrosshairVisible = true;
-		_G.CrosshairSize = 110 - 85;
-		_G.CrosshairThickness = 1 + 0;
-		_G.CrosshairColor = Color3.fromRGB(90 - 50, 1503 - (447 + 966), 698 - 443);
-		_G.CrosshairTransparency = 1817.15 - (1703 + 114);
+		_G.CrosshairSize = 1105 - (1020 + 60);
+		_G.CrosshairThickness = 1424 - (630 + 793);
+		_G.CrosshairColor = Color3.fromRGB(135 - 95, 426 - 336, 101 + 154);
+		_G.CrosshairTransparency = 0.15 - 0;
 		_G.DisableKey = Enum.KeyCode.Q;
 	end
-	v66.TextBoxFocused:Connect(function()
-		v68 = true;
+	v54.TextBoxFocused:Connect(function()
+		v56 = true;
 	end);
-	v66.TextBoxFocusReleased:Connect(function()
-		v68 = false;
+	v54.TextBoxFocusReleased:Connect(function()
+		v56 = false;
 	end);
-	v66.InputBegan:Connect(function(v119)
-		if ((v119.KeyCode == _G.DisableKey) and (v68 == false)) then
+	v54.InputBegan:Connect(function(v106)
+		if ((v106.KeyCode == _G.DisableKey) and (v56 == false)) then
 			_G.CrosshairVisible = not _G.CrosshairVisible;
 			if (_G.SendNotifications == true) then
-				game:GetService("StarterGui"):SetCore("SendNotification", {Title="Operation Nexus",Text=("The crosshair's visibility is now set to " .. tostring(_G.CrosshairVisible) .. "."),Duration=(706 - (376 + 325))});
+				game:GetService("StarterGui"):SetCore("SendNotification", {Title="Operation Nexus",Text=("The crosshair's visibility is now set to " .. tostring(_G.CrosshairVisible) .. "."),Duration=(1752 - (760 + 987))});
 			end
 		end
 	end);
 end);
-v9:NewToggle("Toggle Notifications", "Toggles Notifications", function(v75)
-	_G.SendNotifications = v75;
+v9:NewToggle("Toggle Notifications", "Toggles Notifications", function(v63)
+	_G.SendNotifications = v63;
 end);
-v9:NewToggle("Enable Crosshair", "Or just press Q", function(v76)
-	_G.CrosshairVisible = v76;
+v9:NewToggle("Enable Crosshair", "Or just press Q", function(v64)
+	_G.CrosshairVisible = v64;
 end);
-v9:NewSlider("Crosshair Size", "Changes the size of the Crosshair", 327 - 127, 0 - 0, function(v77)
-	_G.CrosshairSize = v77;
+v9:NewSlider("Crosshair Size", "Changes the size of the Crosshair", 2113 - (1789 + 124), 766 - (745 + 21), function(v65)
+	_G.CrosshairSize = v65;
 end);
-v9:NewToggle("Lock Center Screen", "Locks the Crosshair to the center of the screen", function(v78)
-	_G.ToMouse = v78;
+v9:NewToggle("Lock Center Screen", "Locks the Crosshair to the center of the screen", function(v66)
+	_G.ToMouse = v66;
 end);
-v9:NewSlider("Crosshair Thickness", "Make the Crosshair Thicker", function(v79)
-	_G.CrosshairThickness = v79;
+v9:NewSlider("Crosshair Thickness", "Make the Crosshair Thicker", function(v67)
+	_G.CrosshairThickness = v67;
 end);
-v9:NewColorPicker("Crosshair Color", "Changes the color of the crosshair", Color3.fromRGB(0 + 0, 0 - 0, 14 - (9 + 5)), function(v80)
-	_G.CrosshairColor = v80;
+v9:NewColorPicker("Crosshair Color", "Changes the color of the crosshair", Color3.fromRGB(0 + 0, 0 - 0, 0 - 0), function(v68)
+	_G.CrosshairColor = v68;
 end);
 local v10 = v1:NewTab("Character");
 local v11 = v10:NewSection("Movement");
-v11:NewSlider("Walk Speed Slider", "Speed", 876 - (85 + 291), 1265 - (243 + 1022), function(v81)
-	game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = v81;
+v11:NewSlider("Walk Speed Slider", "Speed", 5 + 495, 0 + 0, function(v69)
+	game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = v69;
 end);
-v11:NewSlider("Jump power Slider", "Jump", 1902 - 1402, 0 + 0, function(v83)
-	game.Players.LocalPlayer.Character.Humanoid.JumpPower = v83;
+v11:NewSlider("Jump power Slider", "Jump", 1555 - (87 + 968), 0 - 0, function(v71)
+	game.Players.LocalPlayer.Character.Humanoid.JumpPower = v71;
 end);
 local v12 = v1:NewTab("Other Scripts");
 local v13 = v12:NewSection("Scripts");
