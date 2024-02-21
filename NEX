@@ -116,9 +116,12 @@ end)
 end)
 
 ESPSection:NewButton("FullBright", "Night time is supposed to be dark?", function()
-    local Lighting = game:GetService("Lighting")
-    Lighting.Ambient = Color3.new(1, 1, 1)
-    Lighting.OutdoorAmbient = Color3.new(1, 1, 1)
+local e = true
+while e == true do
+        local Lighting = game:GetService("Lighting")
+        Lighting.Ambient = Color3.new(1, 1, 1)
+        Lighting.OutdoorAmbient = Color3.new(1, 1, 1)
+    end
 end)
 
 ESPSection:NewButton("Add Tracers", "adds tracers", function()
@@ -472,4 +475,4 @@ end)
 OthersSection:NewButton("Simply Spy", "In Case You Need It.", function()
         loadstring(game:HttpGet(("https://raw.githubusercontent.com/PhantomLord157/ProjectBullShit/main/Remote%20Spy"),true))()
 end)
--- 1.6.0
+-- 1.6.1
