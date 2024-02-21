@@ -5,20 +5,27 @@ local ESP = Window:NewTab("ESP")
 local ESPSection = ESP:NewSection("ESP")
 
 ESPSection:NewButton("ESP", "Shows enemy player chams, health, name, and distance from you.", function()
+-- Configuration
 _G.TeamCheck = true
+_G.Tracers = true
+
+-- LocalPlayer and Services
 local player = game.Players.LocalPlayer
 local RunService = game:GetService("RunService")
+
+-- Highlight
 local highlight = Instance.new("Highlight")
 highlight.Name = "Highlight"
 
 local redHighlightColor = Color3.new(1, 0, 0)
 local greenHighlightColor = Color3.new(0, 1, 0)
 
+-- Functions
 local function createHighlight(character, highlightColor)
     if character and not character:FindFirstChild("HumanoidRootPart"):FindFirstChild("Highlight") then
         local highlightClone = highlight:Clone()
         highlightClone.Adornee = character
-        highlightClone.Parent = character:FindFirstChild("HumanoidRootPart")
+        highlightClone.Parent = character.HumanoidRootPart
         highlightClone.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
         highlightClone.Name = "Highlight"
     end
@@ -30,11 +37,9 @@ local function updatePlayerLabels()
         return
     end
 
-    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
+    for _, otherPlayer in ipairs(game.Players:GetPlayers()) do
         if otherPlayer ~= player then
-            local character = otherPlayer.Character
-            local humanoid = character and character:FindFirstChild("Humanoid")
-            local head = character and character:FindFirstChild("Head")
+            local character, humanoid, head = otherPlayer.Character, otherPlayer.Character:FindFirstChild("Humanoid"), otherPlayer.Character:FindFirstChild("Head")
             local nameLabel = head and head:FindFirstChild("PlayerLabel")
 
             if humanoid and head and humanoid.Health > 0 then
@@ -89,46 +94,9 @@ local function updatePlayerLabels()
     end
 end
 
-local function playerAdded(playerAdded)
-    repeat wait() until playerAdded.Character
-    updatePlayerLabels()
-end
+local Tracers = {}
 
-game.Players.PlayerAdded:Connect(playerAdded)
-
-game.Players.PlayerRemoving:Connect(function(playerRemoved)
-    local character = playerRemoved.Character
-    if character then
-        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-        if humanoidRootPart then
-            local highlight = humanoidRootPart:FindFirstChild("Highlight")
-            if highlight then
-                highlight:Destroy()
-            end
-        end
-    end
-end)
-
-RunService.Heartbeat:Connect(function()
-    updatePlayerLabels()
-end)
-
-end)
-
-ESPSection:NewButton("FullBright", "Night time is supposed to be dark?", function()
-local e = true
-while e == true do
-        local Lighting = game:GetService("Lighting")
-        Lighting.Ambient = Color3.new(1, 1, 1)
-        Lighting.OutdoorAmbient = Color3.new(1, 1, 1)
-        wait(0.01)
-    end
-end)
-
-ESPSection:NewButton("Add Tracers", "adds tracers", function()
-    local Tracers = {}
-
-local function CreateTracer(player)
+local function createTracer(player)
     local tracer = Drawing.new("Line")
     tracer.Visible = false
     tracer.Color = Color3.new(255, 0, 0)
@@ -137,11 +105,9 @@ local function CreateTracer(player)
     Tracers[player] = tracer
 end
 
-local function UpdateTracers()
+local function updateTracers()
     local lplr = game.Players.LocalPlayer
-    local camera = game:GetService("Workspace").CurrentCamera
-    local CurrentCamera = workspace.CurrentCamera
-    local worldToViewportPoint = CurrentCamera.worldToViewportPoint
+    local camera = workspace.CurrentCamera
 
     while wait() do
         for player, tracer in pairs(Tracers) do
@@ -172,17 +138,16 @@ local function UpdateTracers()
 end
 
 game.Players.PlayerAdded:Connect(function(player)
-    CreateTracer(player)
+    createTracer(player)
 end)
 
 for _, player in ipairs(game.Players:GetPlayers()) do
-    CreateTracer(player)
+    createTracer(player)
 end
 
-_G.Tracers = true  -- Set this to false to disable tracers globally
-_G.TeamCheck = true  -- Set this to false to disable team checking globally
-
-coroutine.wrap(UpdateTracers)()
+-- Heartbeat connections
+RunService.Heartbeat:Connect(updatePlayerLabels)
+coroutine.wrap(updateTracers)()
 
 end)
 
