@@ -155,6 +155,15 @@ ESPSection:NewToggle("Toggle Tracers", "lines going to the other players", funct
     _G.Tracers = state
 end)
 
+
+ESPSection:NewButton("FullBright", "Makes Dark Bright.", function()
+while wait(0.1) do
+    local Lighting = game:GetService("Lighting")
+      Lighting.Ambient = Color3.new(1, 1, 1)
+      Lighting.OutdoorAmbient = Color3.new(1, 1, 1)
+    end
+end)
+
 local Aimbot = Window:NewTab("Aimbot")
 local AimbotTogglesSection = Aimbot:NewSection("Aimbot Toggles")
 local FOVTogglesSection = Aimbot:NewSection("FOV Toggles")
