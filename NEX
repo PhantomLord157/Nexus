@@ -194,6 +194,31 @@ local CircleThickness = 3
 -- Wall check toggle
 WallCheckEnabled = false
 
+-- Define bullet speeds for each gun
+local BulletSpeeds = {
+    M16 = 682.5,
+    MP5 = 910,
+    G17 = 1200,
+    Deagle = 2100,
+    ['870MCS'] = 1125, -- If key contains special characters or spaces, use square brackets
+    AK47 = 1000,
+    R870 = 1500,
+    Makarov = 1200,
+    ['S&W .44'] = 1200,
+    Olympia = 1500,
+    ASVAL = 1500,
+    G36 = 6000,
+    P250S = 800,
+    G17X = 850,
+    KS23M = 1500,
+    AKS74U = 910,
+    ACR = 1650,
+    KAR98K = 3750,
+    ['Serbu Shotgun'] = 1500,
+    M14 = 1700,
+    M82 = 3550
+}
+
 local FOVCircle = Drawing.new("Circle")
 FOVCircle.Filled = CircleFilled
 FOVCircle.Visible = CircleVisible
@@ -232,8 +257,12 @@ function GetClosestPlayer()
                     local screenPoint = Camera:WorldToScreenPoint(humanoidRootPart.Position)
                     local vectorDistance = (centerScreen - Vector2.new(screenPoint.X, screenPoint.Y)).Magnitude
 
-                    if vectorDistance < MaximumDistance and vectorDistance < ClosestDistance and IsInFrontOfCamera(humanoidRootPart) then
-                        ClosestDistance = vectorDistance
+                    -- Calculate distance based on movement speed
+                    local velocity = humanoidRootPart.Velocity.magnitude
+                    local weightedDistance = vectorDistance + velocity * 0.1
+
+                    if weightedDistance < MaximumDistance and weightedDistance < ClosestDistance and IsInFrontOfCamera(humanoidRootPart) then
+                        ClosestDistance = weightedDistance
                         Target = v
                     end
                 end
@@ -242,6 +271,28 @@ function GetClosestPlayer()
     end
 
     return Target
+end
+
+function PredictTargetPosition(targetPart, weaponName)
+    local bulletSpeed = BulletSpeeds[weaponName]
+    if not bulletSpeed then
+        warn("Bullet speed for weapon ".. weaponName .. " not found.")
+        return nil
+    end
+
+    local targetPosition = targetPart.Position
+    local targetVelocity = targetPart.Velocity
+    local directionToTarget = (targetPosition - Camera.CFrame.Position).Unit
+    local targetDistance = (targetPosition - Camera.CFrame.Position).Magnitude
+    local timeToHit = targetDistance / bulletSpeed
+
+    -- Predict future position of the target based on its velocity
+    local predictedPosition = targetPosition + targetVelocity * timeToHit
+
+    -- Calculate look vector towards predicted position
+    local lookVector = (predictedPosition - Camera.CFrame.Position).Unit
+
+    return lookVector
 end
 
 UserInputService.InputBegan:Connect(function(input)
@@ -268,18 +319,18 @@ RunService.RenderStepped:Connect(function()
     if Holding and AimbotEnabled then
         local targetPlayer = GetClosestPlayer()
         if targetPlayer then
+            local weaponName = "M16" -- Change this to the name of the weapon you are using
             local targetPart = targetPlayer.Character and targetPlayer.Character[AimPart]
             if targetPart then
-                local targetPosition = targetPart.Position
-                local lookVector = (targetPosition - Camera.CFrame.Position).Unit
-                local targetCFrame = CFrame.new(Camera.CFrame.Position, Camera.CFrame.Position + lookVector)
-                TweenService:Create(Camera, TweenInfo.new(Sensitivity, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {CFrame = targetCFrame}):Play()
+                local lookVector = PredictTargetPosition(targetPart, weaponName)
+                if lookVector then
+                    local targetCFrame = CFrame.new(Camera.CFrame.Position, Camera.CFrame.Position + lookVector)
+                    TweenService:Create(Camera, TweenInfo.new(Sensitivity, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {CFrame = targetCFrame}):Play()
+                end
             end
         end
     end
 end)
-
-
 
 AimbotTogglesSection:NewToggle("Enable Aimbot", "Enables Aimbot", function(state)
     AimbotEnabled = state
@@ -450,4 +501,4 @@ end)
 OthersSection:NewButton("Simply Spy", "In Case You Need It.", function()
         loadstring(game:HttpGet(("https://raw.githubusercontent.com/PhantomLord157/ProjectBullShit/main/Remote%20Spy"),true))()
 end)
--- 1.6.1.1
+-- 1.6.2
