@@ -4,8 +4,8 @@ local Window = Library.CreateLib("Operation Nexus Private", "DarkTheme")
 local ESP = Window:NewTab("ESP")
 local ESPSection = ESP:NewSection("ESP")
 
-ESPSection:NewButton("ESP", "Shows enemy player chams, health, name, and distance from you.", function()
--- Configuration
+ESPSection:NewButton("Add ESP", "Shows enemy player chams, health, name, and distance from you.", function()
+    -- Configuration
 _G.TeamCheck = true
 _G.Tracers = true
 
@@ -17,8 +17,8 @@ local RunService = game:GetService("RunService")
 local highlight = Instance.new("Highlight")
 highlight.Name = "Highlight"
 
-local redHighlightColor = Color3.new(1, 0, 0)
-local greenHighlightColor = Color3.new(0, 1, 0)
+redHighlightColor = Color3.new(1, 0, 0)
+greenHighlightColor = Color3.new(0, 1, 0)
 
 -- Functions
 local function createHighlight(character, highlightColor)
@@ -149,12 +149,25 @@ end
 RunService.Heartbeat:Connect(updatePlayerLabels)
 coroutine.wrap(updateTracers)()
 
+game:GetService("StarterGui"):SetCore("SendNotification",{
+    Title = "Operation Nexus Private";
+    Text = "Added ESP";
+    Duration = 5;
+})
+
 end)
 
 ESPSection:NewToggle("Toggle Tracers", "lines going to the other players", function(state)
     _G.Tracers = state
 end)
 
+ESPSection:NewColorPicker("Enemy Color", "Changes Color of enemy", function(color)
+    redHighlightColor = color
+end)
+
+ESPSection:NewColorPicker("Teammate Color", "Changes the color of teammates", function(color)
+    greenHighlightColor = color
+end)
 
 ESPSection:NewButton("FullBright", "Makes Dark Bright.", function()
 while wait(0.1) do
@@ -183,7 +196,7 @@ local AimPart = "Head"
 Sensitivity = 0
 
 -- FOV settings
-local CircleSides = 12
+CircleSides = 12
 CircleColor = Color3.fromRGB(255, 255, 255)
 local CircleTransparency = 0.7
 CircleRadius = 80
@@ -195,10 +208,10 @@ local CircleThickness = 3
 WallCheckEnabled = false
 
 local FOVCircle = Drawing.new("Circle")
-FOVCircle.Filled = CircleFilled
+local FOVCircle.Filled = CircleFilled
 FOVCircle.Visible = CircleVisible
-FOVCircle.Transparency = CircleTransparency
-FOVCircle.Thickness = CircleThickness
+local FOVCircle.Transparency = CircleTransparency
+local FOVCircle.Thickness = CircleThickness
 
 function IsInFrontOfCamera(part)
     local cameraCFrame = Camera.CFrame
@@ -297,6 +310,10 @@ end)
 
 FOVTogglesSection:NewSlider("FOV Size", "Changes the size of the FOV.", 500, 0, function(s)
     CircleRadius = s
+end)
+
+FOVTogglesSection:NewSlider("FOV Sides", "Changes the sides of the FOV.", 50, 0, function(s)
+    CircleSides = s
 end)
 
 FOVTogglesSection:NewSlider("Lock Speed", "The Higher The number the lower the speed", 10, 0, function(s)
@@ -403,7 +420,7 @@ UserInputService.InputBegan:Connect(function(Input)
         
         if SendNotifications == true then
             game:GetService("StarterGui"):SetCore("SendNotification",{
-                Title = "Operation Nexus";
+                Title = "Operation Nexus Private";
                 Text = "The crosshair's visibility is now set to "..tostring(_G.CrosshairVisible)..".";
                 Duration = 5;
             })
@@ -453,4 +470,4 @@ OthersSection:NewButton("Script Viewer", "You Can See Scripts", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomLord157/ProjectBullShit/main/scriptveiwer"))()
 end)
 
--- 1.6.5
+-- 1.6.6
