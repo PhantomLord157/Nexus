@@ -1,5 +1,5 @@
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomLord157/ProjectBullShit/main/UILibrary.lua"))()
-local Window = Library.CreateLib("Operation Nexus Private V-1.7.0", "DarkTheme")
+local Window = Library.CreateLib("Operation Nexus Private V-1.7.2", "DarkTheme")
 
 -- Notification
 game:GetService("StarterGui"):SetCore("SendNotification", {
@@ -12,6 +12,13 @@ local info = Window:NewTab("Information")
 local infoSection = info:NewSection("Credits To: PhantomLord157 and TheChimcowMan")
 infoSection:NewLabel("Join Our Discord At https://discord.gg/PNXyRxj5JU")
 
+local Keybinds = Window:NewTab("Keybinds")
+local KeybindsSection = Keybinds:NewSection("Keybinds")
+KeybindsSection:NewLabel("Keypad 1 = Show/Hide ESP")
+KeybindsSection:NewLabel("Keypad 2 = Show/Hide Tracers")
+KeybindsSection:NewLabel("Keypad 3 = Toggle ESP Teamcheck")
+KeybindsSection:NewLabel("Keypad 4 = Show/Hide Crosshair") 
+
 local ESP = Window:NewTab("ESP")
 local ESPSection = ESP:NewSection("ESP")
 
@@ -22,9 +29,9 @@ _G.Tracers = true
 _G.PlayerLabelsEnabled = true -- New toggle for player labels and highlights
 
 -- Key Bindings
-local toggleKeyTeamCheck = Enum.KeyCode.T -- Toggle TeamCheck
-local toggleKeyTracers = Enum.KeyCode.Y -- Toggle Tracers
-local toggleKeyLabels = Enum.KeyCode.U -- Toggle Player Labels and Highlights
+local toggleKeyTeamCheck = Enum.KeyCode.KeypadThree -- Toggle TeamCheck
+local toggleKeyTracers = Enum.KeyCode.KeypadTwo -- Toggle Tracers
+local toggleKeyLabels = Enum.KeyCode.KeypadOne -- Toggle Player Labels and Highlights
 
 -- LocalPlayer and Services
 local player = game.Players.LocalPlayer
@@ -416,7 +423,7 @@ local CrosshairThickness = 2   -- The thickness of the crosshair.
 _G.CrosshairColor = Color3.fromRGB(0, 255, 0)   -- The color of the crosshair
 local CrosshairTransparency = 1   -- The transparency of the crosshair.
 
-local DisableKey = Enum.KeyCode.Q   -- The key that enables / disables the crosshair.
+local DisableKey = Enum.KeyCode.KeypadFour   -- The key that enables / disables the crosshair.
 
 RunService.RenderStepped:Connect(function()
     local Real_Size = _G.CrosshairSize / 2
@@ -477,7 +484,7 @@ UserInputService.InputBegan:Connect(function(Input)
     end
 end)
 
-CrosshairSettings:NewToggle("Enable Crosshair", "Or just press Q", function(state)
+CrosshairSettings:NewToggle("Enable Crosshair", "Or Keypad", function(state)
     _G.CrosshairVisible = state
 end)
 
@@ -512,4 +519,4 @@ OthersSection:NewButton("Dark Dex", "In Case You Need It.", function()
     loadstring(game:HttpGet(("https://raw.githubusercontent.com/PhantomLord157/ProjectBullShit/main/DarkDex"),true))()
 end)
 
---1.7.1
+--1.7.2
