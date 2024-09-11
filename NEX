@@ -8,6 +8,10 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
     Duration = 5;
 })
 
+local info = Window:NewTab("Information")
+local infoSection = info:NewSection("Credits To: PhantomLord157 and TheChimcowMan")
+infoSection:NewLabel("Join Our Discord At https://discord.gg/PNXyRxj5JU")
+
 local ESP = Window:NewTab("ESP")
 local ESPSection = ESP:NewSection("ESP")
 
@@ -508,4 +512,4 @@ OthersSection:NewButton("Dark Dex", "In Case You Need It.", function()
     loadstring(game:HttpGet(("https://raw.githubusercontent.com/PhantomLord157/ProjectBullShit/main/DarkDex"),true))()
 end)
 
---1.7.0
+--1.7.1
