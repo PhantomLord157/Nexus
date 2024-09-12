@@ -1,10 +1,10 @@
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomLord157/ProjectBullShit/main/UILibrary.lua"))()
-local Window = Library.CreateLib("Operation Nexus Private V-1.7.2", "DarkTheme")
+local Window = Library.CreateLib("Operation Nexus Public V-1.7.3", "DarkTheme")
 
 -- Notification
 game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "Operation Nexus Private",
-    Text = "Nexus Private Loaded",
+    Title = "Operation Nexus Public",
+    Text = "Nexus Public Loaded",
     Duration = 5;
 })
 
@@ -17,7 +17,7 @@ local KeybindsSection = Keybinds:NewSection("Keybinds")
 KeybindsSection:NewLabel("Keypad 1 = Show/Hide ESP")
 KeybindsSection:NewLabel("Keypad 2 = Show/Hide Tracers")
 KeybindsSection:NewLabel("Keypad 3 = Toggle ESP Teamcheck")
-KeybindsSection:NewLabel("Keypad 4 = Show/Hide Crosshair") 
+KeybindsSection:NewLabel("Keypad 4 = Show/Hide Crosshair")
 
 local ESP = Window:NewTab("ESP")
 local ESPSection = ESP:NewSection("ESP")
@@ -173,7 +173,7 @@ end
 local function toggleTeamCheck()
     _G.TeamCheck = not _G.TeamCheck
     game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Operation Nexus Private",
+        Title = "Operation Nexus Public",
         Text = "TeamCheck " .. (_G.TeamCheck and "Enabled" or "Disabled"),
         Duration = 3
     })
@@ -182,7 +182,7 @@ end
 local function toggleTracers()
     _G.Tracers = not _G.Tracers
     game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Operation Nexus Private",
+        Title = "Operation Nexus Public",
         Text = "Tracers " .. (_G.Tracers and "Enabled" or "Disabled"),
         Duration = 3
     })
@@ -191,7 +191,7 @@ end
 local function togglePlayerLabels()
     _G.PlayerLabelsEnabled = not _G.PlayerLabelsEnabled
     game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Operation Nexus Private",
+        Title = "Operation Nexus Public",
         Text = "Player Labels & Highlights " .. (_G.PlayerLabelsEnabled and "Enabled" or "Disabled"),
         Duration = 3
     })
@@ -226,7 +226,7 @@ coroutine.wrap(updateTracers)()
 
 -- Notification
 game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "Operation Nexus Private",
+    Title = "Operation Nexus Public",
     Text = "Added ESP",
     Duration = 5
 })
@@ -238,6 +238,15 @@ while wait(0.1) do
     local Lighting = game:GetService("Lighting")
       Lighting.Ambient = Color3.new(1, 1, 1)
       Lighting.OutdoorAmbient = Color3.new(1, 1, 1)
+    end
+end)
+
+ESPSection:NewButton("No Fog", "Removes Fog", function()
+    Lighting.FogEnd = 100000
+    for i,v in pairs(Lighting:GetDescendants()) do
+        if v:IsA("Atmosphere") then
+            v:Destroy()
+        end
     end
 end)
 
@@ -391,7 +400,7 @@ local Find_Required = API_Check()
 
 if Find_Required == "No" then
     game:GetService("StarterGui"):SetCore("SendNotification",{
-        Title = "Operation Nexus Private";
+        Title = "Operation Nexus Public";
         Text = "Crosshair script could not be loaded because your exploit is unsupported.";
         Duration = math.huge;
         Button1 = "OK"
@@ -476,7 +485,7 @@ UserInputService.InputBegan:Connect(function(Input)
         
         if SendNotifications == true then
             game:GetService("StarterGui"):SetCore("SendNotification",{
-                Title = "Operation Nexus Private";
+                Title = "Operation Nexus Public";
                 Text = "The crosshair's visibility is now set to "..tostring(_G.CrosshairVisible)..".";
                 Duration = 5;
             })
@@ -496,27 +505,4 @@ CrosshairSettings:NewColorPicker("Crosshair Color", "Changes the color of the cr
     _G.CrosshairColor = color
 end)
 
-
-local character = Window:NewTab("Character")
-local movementSection = character:NewSection("Movement (UNSAFE)")
-
-movementSection:NewSlider("Walk Speed Slider", "Speed", 500, 0, function(s)
-    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = s
-end)
-
-movementSection:NewSlider("Jump power Slider", "Jump", 500, 0, function(s)
-    game.Players.LocalPlayer.Character.Humanoid.JumpPower = s
-end)
-
-local Other = Window:NewTab("Other Scripts")
-local OthersSection = Other:NewSection("Scripts")
-
-OthersSection:NewButton("Inf Yield", "In Case You Need It.", function()
-    loadstring(game:HttpGet(("https://raw.githubusercontent.com/PhantomLord157/ProjectBullShit/main/Inf%20Yeild"),true))()
-end)
-
-OthersSection:NewButton("Dark Dex", "In Case You Need It.", function()
-    loadstring(game:HttpGet(("https://raw.githubusercontent.com/PhantomLord157/ProjectBullShit/main/DarkDex"),true))()
-end)
-
---1.7.2
+--1.7.3
