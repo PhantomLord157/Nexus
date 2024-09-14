@@ -1,173 +1,260 @@
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomLord157/ProjectBullShit/main/UILibrary.lua"))()
-local Window = Library.CreateLib("Operation Nexus Public", "DarkTheme")
+local Window = Library.CreateLib("Operation Nexus Public V-1.7.4", "DarkTheme")
+
+-- Notification
+game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title = "Operation Nexus Public",
+    Text = "Nexus Public Loaded",
+    Duration = 5;
+})
+
+local info = Window:NewTab("Information")
+local infoSection = info:NewSection("Credits To: PhantomLord157 and TheChimcowMan")
+infoSection:NewLabel("Join Our Discord At https://discord.gg/PNXyRxj5JU")
+
+local Keybinds = Window:NewTab("Keybinds")
+local KeybindsSection = Keybinds:NewSection("Keybinds")
+KeybindsSection:NewLabel("Keypad 1 = NOT WORKING")
+KeybindsSection:NewLabel("Keypad 1 = Show/Hide ESP")
+KeybindsSection:NewLabel("Keypad 2 = Show/Hide Tracers")
+KeybindsSection:NewLabel("Keypad 3 = Toggle ESP Teamcheck")
+KeybindsSection:NewLabel("Keypad 4 = Show/Hide Crosshair")
+KeybindsSection:NewLabel("Keypad 5 = Zoom In")
+KeybindsSection:NewLabel("Keypad 6 = Expand Fov")
 
 local ESP = Window:NewTab("ESP")
 local ESPSection = ESP:NewSection("ESP")
 
 ESPSection:NewButton("Add ESP", "Shows enemy player chams, health, name, and distance from you.", function()
-    -- Configuration
-_G.TeamCheck = true
-_G.Tracers = true
-
--- LocalPlayer and Services
-local player = game.Players.LocalPlayer
-local RunService = game:GetService("RunService")
-
--- Highlight
-local highlight = Instance.new("Highlight")
-highlight.Name = "Highlight"
-
-redHighlightColor = Color3.new(1, 0, 0)
-greenHighlightColor = Color3.new(0, 1, 0)
-
--- Functions
-local function createHighlight(character, highlightColor)
-    if character and not character:FindFirstChild("HumanoidRootPart"):FindFirstChild("Highlight") then
-        local highlightClone = highlight:Clone()
-        highlightClone.Adornee = character
-        highlightClone.Parent = character.HumanoidRootPart
-        highlightClone.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-        highlightClone.Name = "Highlight"
+    --- Configuration
+    _G.TeamCheck = true
+    _G.Tracers = true
+    _G.PlayerLabelsEnabled = true -- New toggle for player labels and highlights
+    
+    -- Key Bindings
+    local toggleKeyTeamCheck = Enum.KeyCode.KeypadThree
+    local toggleKeyTracers = Enum.KeyCode.KeypadTwo
+    local toggleKeyESP = Enum.KeyCode.KeypadOne -- Toggle ESP (Player Labels & Highlights)
+    
+    -- LocalPlayer and Services
+    local player = game.Players.LocalPlayer
+    local RunService = game:GetService("RunService")
+    local camera = workspace.CurrentCamera
+    local DebrisService = game:GetService("Debris")
+    local UserInputService = game:GetService("UserInputService")
+    
+    -- Highlight colors
+    local redHighlightColor = Color3.new(1, 0, 0)
+    local greenHighlightColor = Color3.new(0, 1, 0)
+    
+    -- Create a highlight instance if it doesn't exist
+    local function createHighlight(character, highlightColor)
+        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+        if humanoidRootPart and not humanoidRootPart:FindFirstChild("Highlight") then
+            local highlight = Instance.new("Highlight")
+            highlight.Name = "Highlight"
+            highlight.Adornee = character
+            highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+            highlight.FillColor = highlightColor
+            highlight.Parent = humanoidRootPart
+            return highlight
+        end
     end
-end
-
-local function updatePlayerLabels()
-    local playerPosition = player.Character and player.Character.HumanoidRootPart.Position
-    if not playerPosition then
-        return
-    end
-
-    for _, otherPlayer in ipairs(game.Players:GetPlayers()) do
-        if otherPlayer ~= player then
-            local character, humanoid, head = otherPlayer.Character, otherPlayer.Character:FindFirstChild("Humanoid"), otherPlayer.Character:FindFirstChild("Head")
-            local nameLabel = head and head:FindFirstChild("PlayerLabel")
-
-            if humanoid and head and humanoid.Health > 0 then
-                local distance = (head.Position - player.Character.Head.Position).Magnitude
-
-                if not nameLabel then
-                    nameLabel = Instance.new("BillboardGui")
-                    nameLabel.Name = "PlayerLabel"
-                    nameLabel.AlwaysOnTop = true
-                    nameLabel.ExtentsOffset = Vector3.new(0, 3, 0)
-                    nameLabel.Size = UDim2.new(0, 100, 0, 30)
-
-                    local nameLabelText = Instance.new("TextLabel")
-                    nameLabelText.Name = "NameLabel"
-                    nameLabelText.BackgroundTransparency = 1
-                    nameLabelText.Position = UDim2.new(0, 0, 0, 0)
-                    nameLabelText.Size = UDim2.new(1, 0, 0.5, 0)
-                    nameLabelText.Text = ""
-                    nameLabelText.TextColor3 = Color3.new(1, 1, 1)
-                    nameLabelText.Font = Enum.Font.SourceSansBold
-                    nameLabelText.TextSize = 18
-                    nameLabelText.Parent = nameLabel
-
-                    local healthLabel = Instance.new("TextLabel")
-                    healthLabel.Name = "HealthLabel"
-                    healthLabel.BackgroundTransparency = 1
-                    healthLabel.Position = UDim2.new(0, 0, 0.5, 0)
-                    healthLabel.Size = UDim2.new(1, 0, 0.5, 0)
-                    healthLabel.Text = ""
-                    healthLabel.TextColor3 = Color3.new(1, 1, 1)
-                    healthLabel.Font = Enum.Font.SourceSansBold
-                    healthLabel.TextSize = 18
-                    healthLabel.Parent = nameLabel
-
-                    nameLabel.Parent = head
-                end
-
-                nameLabel.NameLabel.Text = otherPlayer.Name
-                nameLabel.HealthLabel.Text = string.format("Distance: %.2f | Health: %d", distance, humanoid.Health)
-                nameLabel.Adornee = head
-                if _G.TeamCheck and player.TeamColor == otherPlayer.TeamColor then
+    
+    -- Update the highlight for a character based on team check
+    local function updateHighlight(character)
+        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+        if humanoidRootPart then
+            local highlight = humanoidRootPart:FindFirstChild("Highlight")
+            if _G.TeamCheck and player.TeamColor == character:FindFirstChild("TeamColor") then
+                if highlight then
+                    highlight.FillColor = greenHighlightColor
+                else
                     createHighlight(character, greenHighlightColor)
-                    nameLabel.NameLabel.TextColor3 = Color3.new(0, 1, 0)
+                end
+            else
+                if highlight then
+                    highlight.FillColor = redHighlightColor
                 else
                     createHighlight(character, redHighlightColor)
-                    nameLabel.NameLabel.TextColor3 = Color3.new(1, 0, 0)
                 end
-            elseif nameLabel then
-                nameLabel:Destroy()
             end
         end
     end
-end
-
-local Tracers = {}
-
-local function createTracer(player)
-    local tracer = Drawing.new("Line")
-    tracer.Visible = false
-    tracer.Color = Color3.new(255, 0, 0)
-    tracer.Thickness = 1
-    tracer.Transparency = 1
-    Tracers[player] = tracer
-end
-
-local function updateTracers()
-    local lplr = game.Players.LocalPlayer
-    local camera = workspace.CurrentCamera
-
-    while wait() do
-        for player, tracer in pairs(Tracers) do
-            if player.Character and player.Character:FindFirstChild("Humanoid") and player.Character:FindFirstChild("HumanoidRootPart") and player.Character.Humanoid.Health > 0 then
-                local Vector, OnScreen = camera:worldToViewportPoint(player.Character.HumanoidRootPart.Position)
-                
-                if OnScreen then
-                    tracer.From = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 1)
-                    tracer.To = Vector2.new(Vector.X, Vector.Y)
-
-                    if player.TeamColor == lplr.TeamColor and _G.TeamCheck then
-                        tracer.Visible = false
+    
+    -- Create player label if it doesn't exist
+    local function createPlayerLabel(head)
+        local nameLabel = Instance.new("BillboardGui")
+        nameLabel.Name = "PlayerLabel"
+        nameLabel.AlwaysOnTop = true
+        nameLabel.ExtentsOffset = Vector3.new(0, 3, 0)
+        nameLabel.Size = UDim2.new(0, 100, 0, 30)
+        nameLabel.Parent = head
+    
+        local nameLabelText = Instance.new("TextLabel")
+        nameLabelText.Name = "NameLabel"
+        nameLabelText.BackgroundTransparency = 1
+        nameLabelText.Size = UDim2.new(1, 0, 0.5, 0)
+        nameLabelText.Font = Enum.Font.SourceSansBold
+        nameLabelText.TextSize = 18
+        nameLabelText.TextColor3 = Color3.new(1, 1, 1)
+        nameLabelText.Parent = nameLabel
+    
+        local healthLabel = Instance.new("TextLabel")
+        healthLabel.Name = "HealthLabel"
+        healthLabel.BackgroundTransparency = 1
+        healthLabel.Position = UDim2.new(0, 0, 0.5, 0)
+        healthLabel.Size = UDim2.new(1, 0, 0.5, 0)
+        healthLabel.Font = Enum.Font.SourceSansBold
+        healthLabel.TextSize = 18
+        healthLabel.TextColor3 = Color3.new(1, 1, 1)
+        healthLabel.Parent = nameLabel
+    
+        return nameLabel
+    end
+    
+    -- Update labels for all players
+    local function updatePlayerLabels()
+        local playerPosition = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+        if not playerPosition then return end
+    
+        for _, otherPlayer in ipairs(game.Players:GetPlayers()) do
+            if otherPlayer ~= player then
+                local character = otherPlayer.Character
+                local humanoid = character and character:FindFirstChild("Humanoid")
+                local head = character and character:FindFirstChild("Head")
+                if humanoid and head and humanoid.Health > 0 then
+                    local nameLabel = head:FindFirstChild("PlayerLabel") or createPlayerLabel(head)
+                    local distanceStuds = (head.Position - playerPosition.Position).Magnitude
+                    local distanceMeters = distanceStuds * 0.2 -- Convert distance to meters
+    
+                    -- Update the label text
+                    nameLabel.NameLabel.Text = otherPlayer.Name
+                    nameLabel.HealthLabel.Text = string.format("Distance: %.2f m | Health: %d", distanceMeters, humanoid.Health)
+    
+                    -- Update the highlight
+                    updateHighlight(character)
+    
+                    -- Set team-based color for label
+                    if _G.TeamCheck and player.TeamColor == otherPlayer.TeamColor then
+                        nameLabel.NameLabel.TextColor3 = Color3.new(0, 1, 0)
                     else
-                        tracer.Visible = true
+                        nameLabel.NameLabel.TextColor3 = Color3.new(1, 0, 0)
+                    end
+                else
+                    if head and head:FindFirstChild("PlayerLabel") then
+                        head.PlayerLabel:Destroy()
+                    end
+                    local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
+                    if humanoidRootPart and humanoidRootPart:FindFirstChild("Highlight") then
+                        humanoidRootPart.Highlight:Destroy()
+                    end
+                end
+            end
+        end
+    end
+    
+    
+    -- Tracers
+    local Tracers = {}
+    
+    -- Create a tracer for each player
+    local function createTracer(otherPlayer)
+        local tracer = Drawing.new("Line")
+        tracer.Visible = false
+        tracer.Color = Color3.new(1, 0, 0)
+        tracer.Thickness = 1
+        tracer.Transparency = 1
+        Tracers[otherPlayer] = tracer
+    end
+    
+    -- Update all tracers
+    local function updateTracers()
+        while _G.Tracers do
+            for otherPlayer, tracer in pairs(Tracers) do
+                local character = otherPlayer.Character
+                local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
+                if humanoidRootPart and character:FindFirstChild("Humanoid").Health > 0 then
+                    local screenPos, onScreen = camera:WorldToViewportPoint(humanoidRootPart.Position)
+                    if onScreen then
+                        tracer.From = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y)
+                        tracer.To = Vector2.new(screenPos.X, screenPos.Y)
+                        tracer.Visible = player.TeamColor ~= otherPlayer.TeamColor or not _G.TeamCheck
+                    else
+                        tracer.Visible = false
                     end
                 else
                     tracer.Visible = false
                 end
-            else
-                tracer.Visible = false
             end
-
-            if not _G.Tracers then
-                tracer.Visible = false
-            end
+            RunService.Heartbeat:Wait()
         end
     end
-end
-
-game.Players.PlayerAdded:Connect(function(player)
-    createTracer(player)
-end)
-
-for _, player in ipairs(game.Players:GetPlayers()) do
-    createTracer(player)
-end
-
--- Heartbeat connections
-RunService.Heartbeat:Connect(updatePlayerLabels)
-coroutine.wrap(updateTracers)()
-
-game:GetService("StarterGui"):SetCore("SendNotification",{
-    Title = "Operation Nexus Public";
-    Text = "Added ESP";
-    Duration = 5;
-})
-
-end)
-
-ESPSection:NewToggle("Toggle Tracers", "lines going to the other players", function(state)
-    _G.Tracers = state
-end)
-
-ESPSection:NewColorPicker("Enemy Color", "Changes Color of enemy", function(color)
-    redHighlightColor = color
-end)
-
-ESPSection:NewColorPicker("Teammate Color", "Changes the color of teammates", function(color)
-    greenHighlightColor = color
-end)
+    
+    -- Toggle functions
+    local function toggleESP()
+        _G.PlayerLabelsEnabled = not _G.PlayerLabelsEnabled
+        _G.Tracers = _G.PlayerLabelsEnabled -- Also toggle tracers when toggling ESP
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "Operation Nexus Private",
+            Text = "ESP " .. (_G.PlayerLabelsEnabled and "Enabled" or "Disabled"),
+            Duration = 3
+        })
+    end
+    
+    local function toggleTeamCheck()
+        _G.TeamCheck = not _G.TeamCheck
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "Operation Nexus Private",
+            Text = "TeamCheck " .. (_G.TeamCheck and "Enabled" or "Disabled"),
+            Duration = 3
+        })
+    end
+    
+    local function toggleTracers()
+        _G.Tracers = not _G.Tracers
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "Operation Nexus Private",
+            Text = "Tracers " .. (_G.Tracers and "Enabled" or "Disabled"),
+            Duration = 3
+        })
+    end
+    
+    -- Input handling for toggles
+    UserInputService.InputBegan:Connect(function(input, isProcessed)
+        if not isProcessed then
+            if input.KeyCode == toggleKeyTeamCheck then
+                toggleTeamCheck()
+            elseif input.KeyCode == toggleKeyTracers then
+                toggleTracers()
+            elseif input.KeyCode == toggleKeyESP then
+                toggleESP()
+            end
+        end
+    end)
+    
+    -- Player added event
+    game.Players.PlayerAdded:Connect(function(otherPlayer)
+        createTracer(otherPlayer)
+    end)
+    
+    -- Initialize tracers for existing players
+    for _, otherPlayer in ipairs(game.Players:GetPlayers()) do
+        createTracer(otherPlayer)
+    end
+    
+    -- Heartbeat connections for labels and tracers
+    RunService.Heartbeat:Connect(updatePlayerLabels)
+    coroutine.wrap(updateTracers)()
+    
+    -- Notification
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Operation Nexus Public",
+        Text = "Added ESP",
+        Duration = 5
+    })
+    
+    end)
 
 ESPSection:NewButton("FullBright", "Makes Dark Bright.", function()
 while wait(0.1) do
@@ -175,6 +262,68 @@ while wait(0.1) do
       Lighting.Ambient = Color3.new(1, 1, 1)
       Lighting.OutdoorAmbient = Color3.new(1, 1, 1)
     end
+end)
+
+ESPSection:NewButton("Zoom", "Zooms In", function()
+    local player = game.Players.LocalPlayer
+    local camera = game.Workspace.CurrentCamera
+    local zoomInFOV = 20
+    local zoomOutFOV = 70
+    local zoomSpeed = 0.01
+    
+    local isZoomedIn = false
+    
+    local function toggleZoom()
+        if isZoomedIn then
+            for fov = camera.FieldOfView, zoomOutFOV, zoomSpeed do
+                camera.FieldOfView = fov
+            end
+            camera.FieldOfView = zoomOutFOV
+        else
+            for fov = camera.FieldOfView, zoomInFOV, -zoomSpeed do
+            camera.FieldOfView = fov
+            end
+            camera.FieldOfView = zoomInFOV
+        end
+        isZoomedIn = not isZoomedIn
+    end
+    
+    game:GetService("UserInputService").InputBegan:Connect(function(input)
+        if input.KeyCode == Enum.KeyCode.KeypadFive then 
+            toggleZoom()
+        end
+    end)
+end)
+
+ESPSection:NewButton("Expand FOV", "Expands FOV", function()
+    local player = game.Players.LocalPlayer
+    local camera = game.Workspace.CurrentCamera
+    local zoomInFOV = 120
+    local zoomOutFOV = 70
+    local zoomSpeed = 0.01
+    
+    local isZoomedIn = false
+    
+    local function toggleZoom()
+        if isZoomedIn then
+            for fov = camera.FieldOfView, zoomOutFOV, zoomSpeed do
+                camera.FieldOfView = fov
+            end
+            camera.FieldOfView = zoomOutFOV
+        else
+            for fov = camera.FieldOfView, zoomInFOV, -zoomSpeed do
+            camera.FieldOfView = fov
+            end
+            camera.FieldOfView = zoomInFOV
+        end
+        isZoomedIn = not isZoomedIn
+    end
+    
+    game:GetService("UserInputService").InputBegan:Connect(function(input)
+        if input.KeyCode == Enum.KeyCode.KeypadSix then 
+            toggleZoom()
+        end
+    end)
 end)
 
 local Aimbot = Window:NewTab("Aimbot")
@@ -207,11 +356,11 @@ local CircleThickness = 3
 -- Wall check toggle
 WallCheckEnabled = false
 
-local FOVCircle = Drawing.new("Circle")
-local FOVCircle.Filled = CircleFilled
+FOVCircle = Drawing.new("Circle")
+FOVCircle.Filled = CircleFilled
 FOVCircle.Visible = CircleVisible
-local FOVCircle.Transparency = CircleTransparency
-local FOVCircle.Thickness = CircleThickness
+FOVCircle.Transparency = CircleTransparency
+FOVCircle.Thickness = CircleThickness
 
 function IsInFrontOfCamera(part)
     local cameraCFrame = Camera.CFrame
@@ -312,14 +461,6 @@ FOVTogglesSection:NewSlider("FOV Size", "Changes the size of the FOV.", 500, 0, 
     CircleRadius = s
 end)
 
-FOVTogglesSection:NewSlider("FOV Sides", "Changes the sides of the FOV.", 50, 0, function(s)
-    CircleSides = s
-end)
-
-FOVTogglesSection:NewSlider("Lock Speed", "The Higher The number the lower the speed", 10, 0, function(s)
-    Sensitivity = s
-end)
-
 local CrossHair = Window:NewTab("CrossHair")
 local CrosshairSettings = CrossHair:NewSection("Crosshair Settings")
 
@@ -335,7 +476,7 @@ local Find_Required = API_Check()
 
 if Find_Required == "No" then
     game:GetService("StarterGui"):SetCore("SendNotification",{
-        Title = "Exunys Developer";
+        Title = "Operation Nexus Public";
         Text = "Crosshair script could not be loaded because your exploit is unsupported.";
         Duration = math.huge;
         Button1 = "OK"
@@ -367,7 +508,7 @@ local CrosshairThickness = 2   -- The thickness of the crosshair.
 _G.CrosshairColor = Color3.fromRGB(0, 255, 0)   -- The color of the crosshair
 local CrosshairTransparency = 1   -- The transparency of the crosshair.
 
-local DisableKey = Enum.KeyCode.Q   -- The key that enables / disables the crosshair.
+local DisableKey = Enum.KeyCode.KeypadFour   -- The key that enables / disables the crosshair.
 
 RunService.RenderStepped:Connect(function()
     local Real_Size = _G.CrosshairSize / 2
@@ -428,7 +569,7 @@ UserInputService.InputBegan:Connect(function(Input)
     end
 end)
 
-CrosshairSettings:NewToggle("Enable Crosshair", "Or just press Q", function(state)
+CrosshairSettings:NewToggle("Enable Crosshair", "Or Keypad", function(state)
     _G.CrosshairVisible = state
 end)
 
@@ -440,15 +581,4 @@ CrosshairSettings:NewColorPicker("Crosshair Color", "Changes the color of the cr
     _G.CrosshairColor = color
 end)
 
-local character = Window:NewTab("Character")
-local movementSection = character:NewSection("Movement (UNSAFE)")
-
-movementSection:NewSlider("Walk Speed Slider", "Speed", 500, 0, function(s)
-    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = s
-end)
-
-movementSection:NewSlider("Jump power Slider", "Jump", 500, 0, function(s)
-    game.Players.LocalPlayer.Character.Humanoid.JumpPower = s
-end)
-
--- P 1.0
+--1.7.4
