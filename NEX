@@ -1,5 +1,5 @@
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomLord157/ProjectBullShit/main/UILibrary.lua"))()
-local Window = Library.CreateLib("Operation Nexus Private V-1.7.4", "DarkTheme")
+local Window = Library.CreateLib("Operation Nexus Private V-1.7.4.1", "DarkTheme")
 
 -- Notification
 game:GetService("StarterGui"):SetCore("SendNotification", {
@@ -598,6 +598,7 @@ CrosshairSettings:NewColorPicker("Crosshair Color", "Changes the color of the cr
 end)
 
 local perf = Window:NewTab("Performance")
+local perfsection = perf:NewSection("Coming Soon")
 
 
 local character = Window:NewTab("Character")
@@ -611,7 +612,7 @@ movementSection:NewSlider("Jump power Slider", "Jump", 500, 0, function(s)
     game.Players.LocalPlayer.Character.Humanoid.JumpPower = s
 end)
 
-movementSection:NewButton("Fly", "It'a bird, It's a plane...", function()
+movementSection:NewButton("Fly      (Coming Soon)", "It'a bird, It's a plane...", function()
 
 end)
 
@@ -626,4 +627,4 @@ OthersSection:NewButton("Dark Dex", "In Case You Need It.", function()
     loadstring(game:HttpGet(("https://raw.githubusercontent.com/PhantomLord157/ProjectBullShit/main/DarkDex"),true))()
 end)
 
---1.7.4
+--1.7.4.1
