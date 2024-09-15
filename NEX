@@ -1,32 +1,60 @@
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/PhantomLord157/ProjectBullShit/main/UILibrary.lua"))()
-local Window = Library.CreateLib("Operation Nexus Private V-1.7.4.1", "DarkTheme")
+loadstring(game:HttpGet(("https://raw.githubusercontent.com/PhantomLord157/Nexus/main/betterUIlibrary"),true))()
 
--- Notification
+local Window = Library:CreateWindow({
+    Title = title2,
+    Center = true,
+    AutoShow = true,
+    TabPadding = 8
+})
+
+local title, title2 = 'Nex | v%s | fps %s | ping %s', 'Operation Nexus | Version 2.0.0'
+
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "Operation Nexus Private",
     Text = "Nexus Private Loaded",
     Duration = 5;
 })
 
-local info = Window:NewTab("Information")
-local infoSection = info:NewSection("Credits To: PhantomLord157 and TheChimcowMan")
-infoSection:NewLabel("Join Our Discord At https://discord.gg/PNXyRxj5JU")
+local Tabs = {
+    Credits = Window:AddTab('Credits'),
+    Keybinds = Window:AddTab('Keybinds'),
+    Visuals = Window:AddTab('Visuals'),
+    Aimbot = Window:AddTab('Aimbot'),
+    Games = Window:AddTab('Games'),
+    Misc = Window:AddTab('Misc'),
+    UISettings = Window:AddTab('Settings')
+}
 
-local Keybinds = Window:NewTab("Keybinds")
-local KeybindsSection = Keybinds:NewSection("Keybinds")
-KeybindsSection:NewLabel("Keypad 1 = NOT WORKING")
-KeybindsSection:NewLabel("Keypad 1 = Show/Hide ESP")
-KeybindsSection:NewLabel("Keypad 2 = Show/Hide Tracers")
-KeybindsSection:NewLabel("Keypad 3 = Toggle ESP Teamcheck")
-KeybindsSection:NewLabel("Keypad 4 = Show/Hide Crosshair")
-KeybindsSection:NewLabel("Keypad 5 = Zoom In")
-KeybindsSection:NewLabel("Keypad 6 = Expand Fov")
+local CMainL = Tabs.Credits:AddLeftTabbox()
+local CMainR = Tabs.Credits:AddLeftTabbox()
+local CreditInfo = CMainL:AddTab('Credit Information')
+local info = CMainR:AddTab('Information')
 
-local ESP = Window:NewTab("ESP")
-local ESPSection = ESP:NewSection("ESP")
+info:AddLabel('Aimbot Not Working')
+info:AddLabel('More Coming soon')
 
-ESPSection:NewButton("Add ESP", "Shows enemy player chams, health, name, and distance from you.", function()
---- Configuration
+CreditInfo:AddLabel('PhantomLord157 and TheChimcomMan')
+CreditInfo:AddLabel('https://discord.gg/PNXyRxj5JU')
+
+local KMainL = Tabs.Keybinds:AddLeftTabbox()
+local KMainR = Tabs.Keybinds:AddRightTabbox()
+local Keybindss = KMainL:AddTab('Keybinds')
+local Keybinds = KMainR:AddTab('Keybinds')
+
+Keybindss:AddLabel('Keypad 1 = NOT WORKING')
+Keybindss:AddLabel('Keypad 1 = Show/Hide ESP')
+Keybindss:AddLabel('Keypad 2 = Show/Hide Tracers')
+Keybindss:AddLabel('Keypad 3 = Toggle ESP Teamcheck')
+Keybinds:AddLabel('Keypad 4 = Show/Hide Crosshair')
+Keybinds:AddLabel('Keypad 5 = Zoom In')
+Keybinds:AddLabel('Keypad 6 = Expand Fov')
+
+local Main = Tabs.Visuals:AddLeftTabbox()
+local Toggles = Tabs.Visuals:AddRightTabbox()
+local ESPStuff = Main:AddTab('ESP Stuff')
+
+ESPStuff:AddButton('ESP', function()
+    --- Configuration
 _G.TeamCheck = true
 _G.Tracers = true
 _G.PlayerLabelsEnabled = true -- New toggle for player labels and highlights
@@ -256,15 +284,15 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 
 end)
 
-ESPSection:NewButton("FullBright", "Makes Dark Bright.", function()
-while wait(0.1) do
-    local Lighting = game:GetService("Lighting")
-      Lighting.Ambient = Color3.new(1, 1, 1)
-      Lighting.OutdoorAmbient = Color3.new(1, 1, 1)
+ESPStuff:AddButton('Fullbright', function()
+    while wait(0.1) do
+        local Lighting = game:GetService("Lighting")
+        Lighting.Ambient = Color3.new(1, 1, 1)
+        Lighting.OutdoorAmbient = Color3.new(1, 1, 1)
     end
 end)
 
-ESPSection:NewButton("No Fog", "Removes All Fog.", function()
+ESPStuff:AddButton('No Fog', function()
     Lighting = game:GetService("Lighting")
     Lighting.FogEnd = 100000
         for i,v in pairs(Lighting:GetDescendants()) do
@@ -274,7 +302,7 @@ ESPSection:NewButton("No Fog", "Removes All Fog.", function()
     end
 end)
 
-ESPSection:NewButton("Add Zoom", "Zooms In", function()
+ESPStuff:AddButton('Zoom', function()
     local player = game.Players.LocalPlayer
     local camera = game.Workspace.CurrentCamera
     local zoomInFOV = 20
@@ -305,7 +333,7 @@ ESPSection:NewButton("Add Zoom", "Zooms In", function()
     end)
 end)
 
-ESPSection:NewButton("Expand FOV", "Expands FOV", function()
+ESPStuff:AddButton('Expand FOV', function()
     local player = game.Players.LocalPlayer
     local camera = game.Workspace.CurrentCamera
     local zoomInFOV = 120
@@ -336,295 +364,250 @@ ESPSection:NewButton("Expand FOV", "Expands FOV", function()
     end)
 end)
 
-ESPSection:NewSlider("FOV Slider", "FOV Get Big", 120, 0, function(s)
-    local player = game.Players.LocalPlayer
-    local camera = game.Workspace.CurrentCamera
-    camera.FieldOfView = s
-end)
+local AMainR = Tabs.Aimbot:AddLeftTabbox()
+local AMainL = Tabs.Aimbot:AddRightTabbox()
+local Aimbot = AMainR:AddTab('Aimbot')
+local aimbot = AMainL:AddTab('Aimbot Toggles')
 
-local Aimbot = Window:NewTab("Aimbot")
-local AimbotTogglesSection = Aimbot:NewSection("Aimbot Toggles")
-local FOVTogglesSection = Aimbot:NewSection("FOV Toggles")
+aimbot:AddToggle('Aim Lock', {
+    Text = 'Aim Lock',
+    Default = false,
 
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
+    Callback = function(state)
+        AimbotEnabled = state
+    end
+})
+
+aimbot:AddToggle('Circle Visibility', {
+    Text = 'Circle Visibility',
+    Default = true,
+
+    Callback = function(state)
+        CircleVisible = state
+        FOVCircle.Visible = state
+    end
+})
+
+aimbot:AddToggle('Circle Filled', {
+    Text = 'Circle Filled',
+    Default = false,
+
+    Callback = function(state)
+        CircleFilled = state
+        FOVCircle.Filled = state
+    end
+})
+
+aimbot:AddSlider('FOV Size', {
+    Text = 'FOV Size',
+    Default = 80,
+    Min = 10,
+    Max = 200,
+    Rounding = 0,
+
+    Callback = function(value)
+        CircleRadius = value
+    end
+})
+
+aimbot:AddSlider('Circle Transparency', {
+    Text = 'Circle Transparency',
+    Default = 0.5,
+    Min = 0.01,
+    Max = 1,
+    Rounding = 0,
+
+    Callback = function(value)
+        CircleTransparency = value
+        FOVCircle.Transparency = value
+    end
+})
+
+aimbot:AddSlider('Circle Thickness', {
+    Text = 'Circle Thickness',
+    Default = 1,
+    Min = 1,
+    Max = 10,
+    Rounding = 0,
+
+    Callback = function(value)
+        CircleThickness = value
+        FOVCircle.Thickness = value
+    end
+})
+
+aimbot:AddSlider('Sensitivity', {
+    Text = 'Sensitivity',
+    Default = 0.5,
+    Min = 0,
+    Max = 50,
+    Rounding = 0,
+
+    Callback = function(value)
+        Sensitivity = value
+    end
+})
+
+aimbot:AddColorPicker('Circle Color', {
+    Default = Color3.new(0, 0, 255),
+    Title = 'Circle Color',
+    Transparency = 0,
+
+    Callback = function(color)
+        FOVCircle = color
+        CircleColor = color
+        FOVCircle.Color = color
+    end
+})
+
+ aimbot:AddDropdown('Aim Part', {
+    Values = {'Head', 'Torso'},
+    Default = 1,
+    Multi = false,
+
+    Text = 'Aim Lock Part',
+    Tooltip = 'Select Part',
+
+    Callback = function(option)
+        AimPart = option
+    end
+})
+
+local MMainL = Tabs.Misc:AddLeftTabbox()
+local MMainR = Tabs.Misc:AddRightTabbox()
+local Movement = MMainL:AddTab('Movment')
+
+Movment:AddSlider('Walk Speed', {
+    Text = 'Walk Speed',
+    Default = 20,
+    Min = 0,
+    Max = 1000,
+    Rounding = 0,
+
+    Callback = function(value)
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = value
+    end
+})
+
+Movment:AddSlider('Jump Power', {
+    Text = 'Jump Power',
+    Default = 10,
+    Min = 0,
+    Max = 1000,
+    Rounding = 0,
+
+    Callback = function(value)
+        game.Players.LocalPlayer.Character.Humanoid.JumpPower = value
+    end
+})
+
+local UMainR = Tabs.UISettings:AddRightTabbox()
+local UMainL = Tabs.UISettings:AddLeftTabbox()
+local ui = UMainR:AddTab('UI Settings')
+local UI = UMainL:AddTab('UI Settings')
+
+-- Add toggle for the watermark visibility
+ui:AddToggle('showwatermark', {
+    Text = "Show Watermark",
+    Default = true,  -- Set to true by default
+    Callback = function(value)
+        -- Update visibility of the watermark elements based on the toggle
+        background.Visible = value
+        topbar.Visible = value
+        topbar1.Visible = value
+        logotext.Visible = value
+        text.Visible = value
+    end
+})
+
 local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
-local Holding = false
+local camera = workspace.CurrentCamera
 
--- Aimbot settings
-AimbotEnabled = false
-TeamCheck = true
-local AimPart = "Head"
-Sensitivity = 0
-
--- FOV settings
-CircleSides = 12
-CircleColor = Color3.fromRGB(255, 255, 255)
-local CircleTransparency = 0.7
-CircleRadius = 80
-local CircleFilled = false
-CircleVisible = false
-local CircleThickness = 3
-
--- Wall check toggle
-WallCheckEnabled = false
-
-FOVCircle = Drawing.new("Circle")
-FOVCircle.Filled = CircleFilled
-FOVCircle.Visible = CircleVisible
-FOVCircle.Transparency = CircleTransparency
-FOVCircle.Thickness = CircleThickness
-
-function IsInFrontOfCamera(part)
-    local cameraCFrame = Camera.CFrame
-    local partPosition = part.Position
-    local cameraLookVector = cameraCFrame.LookVector
-    local directionToPart = (partPosition - cameraCFrame.Position).Unit
-    return cameraLookVector:Dot(directionToPart) > 0
+local function updateTopRightPosition()
+    return Vector2.new(camera.ViewportSize.X - 10, 10) -- 10 pixels from the right and top
 end
 
-function GetClosestPlayer()
-    local MaximumDistance = CircleRadius
-    local Target = nil
-    local ClosestDistance = math.huge
+local toprightpos = updateTopRightPosition()
 
-    local centerScreen = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+local background = draw:new("Line", {
+    To = toprightpos - Vector2.new(200, -(6+3)),
+    From = toprightpos - Vector2.new(0, -(6+3)),
+    Thickness = 15,
+    Transparency = 0.7,
+    Visible = true,
+    Color = Color3.new(0, 0, 0),
+    ZIndex = 1,
+})
+local topbar = draw:new("Line", {
+    To = toprightpos - Vector2.new(200, 0),
+    From = toprightpos - Vector2.new(0, 0),
+    Thickness = 1,
+    Transparency = 1,
+    Visible = true,
+    Color = Options["watercolor"].Value,
+    ZIndex = 1,
+})
+local topbar1 = draw:new("Line", {
+    To = toprightpos - Vector2.new(200, -1),
+    From = toprightpos - Vector2.new(0, -1),
+    Thickness = 1,
+    Transparency = 1,
+    Visible = true,
+    Color = Options["watercolor"].Value,
+    ZIndex = 1,
+})
+local logotext = draw:new("Text", {
+    Text = "Operation Nexus Private",
+    Size = 13,
+    Font = 1,
+    Outline = true,
+    Center = false,
+    Position = toprightpos - Vector2.new(195, -2),
+    Transparency = 1,
+    Visible = true,
+    Color = Options["watercolor"].Value,
+    ZIndex = 1,
+})
+local text = draw:new("Text", {
+    Text = "V - 1.8.0 | fps | ping",
+    Size = 13,
+    Font = 1,
+    Outline = true,
+    Center = false,
+    Position = toprightpos - Vector2.new(195, 15),
+    Transparency = 1,
+    Visible = true,
+    Color = Color3.new(1, 1, 1),
+    ZIndex = 1,
+})
+draw:changevis(false)
+local FrameTimer = tick()
+local FrameCounter = 0
+local FPS = 60
 
-    for _, v in pairs(Players:GetPlayers()) do
-        if v ~= LocalPlayer and (not TeamCheck or v.Team ~= LocalPlayer.Team) then
-            local character = v.Character
-            if character then
-                local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-                if humanoidRootPart then
-                    if WallCheckEnabled then
-                        local ray = Ray.new(Camera.CFrame.Position, humanoidRootPart.Position - Camera.CFrame.Position)
-                        local hitPart, hitPosition = workspace:FindPartOnRay(ray)
-                        if hitPart and hitPart.Parent ~= character then
-                            break
-                        end
-                    end
+RunService.Stepped:Connect(function()
+    local toprightpos = updateTopRightPosition()
 
-                    local screenPoint = Camera:WorldToScreenPoint(humanoidRootPart.Position)
-                    local vectorDistance = (centerScreen - Vector2.new(screenPoint.X, screenPoint.Y)).Magnitude
+    topbar.To = toprightpos - Vector2.new(logotext.TextBounds.X + text.TextBounds.X + 10, 0)
+    topbar1.To = toprightpos - Vector2.new(logotext.TextBounds.X + text.TextBounds.X + 10, -1)
+    background.To = toprightpos - Vector2.new(logotext.TextBounds.X + text.TextBounds.X + 10, -(6+3))
+    logotext.Position = toprightpos - Vector2.new(logotext.TextBounds.X + text.TextBounds.X + 5, -2)
+    text.Position = toprightpos - Vector2.new(text.TextBounds.X + 5, -2)
 
-                    if vectorDistance < MaximumDistance and vectorDistance < ClosestDistance and IsInFrontOfCamera(humanoidRootPart) then
-                        ClosestDistance = vectorDistance
-                        Target = v
-                    end
-                end
-            end
-        end
+    topbar.Color = Options["watercolor"].Value
+    topbar1.Color = Options["watercolor"].Value
+    logotext.Color = Options["watercolor"].Value
+
+    FrameCounter = FrameCounter + 1
+    if (tick() - FrameTimer) >= 1 then
+        FPS = FrameCounter
+        FrameTimer = tick()
+        FrameCounter = 0
     end
 
-    return Target
-end
-
-UserInputService.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton2 then
-        Holding = true
-    end
+    text.Text = title:format(
+        "0.0.1",
+        math.floor(FPS),
+        math.floor(game:GetService('Stats').Network.ServerStatsItem['Data Ping']:GetValue())
+    )
 end)
-
-UserInputService.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton2 then
-        Holding = false
-    end
-end)
-
-RunService.RenderStepped:Connect(function()
-    FOVCircle.Position = Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y)
-    FOVCircle.Radius = CircleRadius
-    FOVCircle.Color = CircleColor
-    FOVCircle.Visible = CircleVisible
-    FOVCircle.Transparency = CircleTransparency
-    FOVCircle.NumSides = CircleSides
-    FOVCircle.Thickness = CircleThickness
-
-    if Holding and AimbotEnabled then
-        local targetPlayer = GetClosestPlayer()
-        if targetPlayer then
-            local targetPart = targetPlayer.Character and targetPlayer.Character[AimPart]
-            if targetPart then
-                local targetPosition = targetPart.Position
-                local lookVector = (targetPosition - Camera.CFrame.Position).Unit
-                local targetCFrame = CFrame.new(Camera.CFrame.Position, Camera.CFrame.Position + lookVector)
-                TweenService:Create(Camera, TweenInfo.new(Sensitivity, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {CFrame = targetCFrame}):Play()
-            end
-        end
-    end
-end)
-
-AimbotTogglesSection:NewToggle("Enable Aimbot", "Enables Aimbot", function(state)
-    AimbotEnabled = state
-end)
-
-AimbotTogglesSection:NewToggle("Enable Team Check", "Enables Team Check", function(state)
-    TeamCheck = state
-end)
-
-FOVTogglesSection:NewToggle("FOV Visible", "Changes the visibility of the FOV.", function (state)
-    CircleVisible = state
-end)
-
-FOVTogglesSection:NewColorPicker("FOV Color", "Changes The FOV Color", Color3.fromRGB(0, 0, 0), function(color)
-    CircleColor = color
-end)
-
-FOVTogglesSection:NewSlider("FOV Size", "Changes the size of the FOV.", 500, 0, function(s)
-    CircleRadius = s
-end)
-
-local CrossHair = Window:NewTab("CrossHair")
-local CrosshairSettings = CrossHair:NewSection("Crosshair Settings")
-
-local function API_Check()
-    if Drawing == nil then
-        return "No"
-    else
-        return "Yes"
-    end
-end
-
-local Find_Required = API_Check()
-
-if Find_Required == "No" then
-    game:GetService("StarterGui"):SetCore("SendNotification",{
-        Title = "Operation Nexus Private";
-        Text = "Crosshair script could not be loaded because your exploit is unsupported.";
-        Duration = math.huge;
-        Button1 = "OK"
-    })
-
-    return
-end
-
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local Camera = workspace.CurrentCamera
-
-local Typing = false
-
-local ViewportSize_ = Camera.ViewportSize / 2
-local Axis_X, Axis_Y = ViewportSize_.X, ViewportSize_.Y
-
-local HorizontalLine = Drawing.new("Line")
-local VerticalLine = Drawing.new("Line")
-
-local SendNotifications = true   -- If set to true then the script would notify you frequently on any changes applied and when loaded / errored. (If a game can detect this, it is recommended to set it to false)
-local DefaultSettings = false   -- If set to true then the script would create a crosshair with the default settings regardless of any changes.
-local ToMouse = false   -- If set to true then the crosshair will be positioned to your mouse cursor's position. If set to false it will be positioned to the center of your screen.
-
-_G.CrosshairVisible = false   -- If set to true then the crosshair would be visible and vice versa.
-_G.CrosshairSize = 20   -- The size of the crosshair.
-local CrosshairThickness = 2   -- The thickness of the crosshair.
-_G.CrosshairColor = Color3.fromRGB(0, 255, 0)   -- The color of the crosshair
-local CrosshairTransparency = 1   -- The transparency of the crosshair.
-
-local DisableKey = Enum.KeyCode.KeypadFour   -- The key that enables / disables the crosshair.
-
-RunService.RenderStepped:Connect(function()
-    local Real_Size = _G.CrosshairSize / 2
-
-    HorizontalLine.Color = _G.CrosshairColor
-    HorizontalLine.Thickness = CrosshairThickness
-    HorizontalLine.Visible = _G.CrosshairVisible
-    HorizontalLine.Transparency = CrosshairTransparency
-    
-    VerticalLine.Color = _G.CrosshairColor
-    VerticalLine.Thickness = CrosshairThickness
-    VerticalLine.Visible = _G.CrosshairVisible
-    VerticalLine.Transparency = CrosshairTransparency
-    
-    if ToMouse == true then
-        HorizontalLine.From = Vector2.new(UserInputService:GetMouseLocation().X - Real_Size, UserInputService:GetMouseLocation().Y)
-        HorizontalLine.To = Vector2.new(UserInputService:GetMouseLocation().X + Real_Size, UserInputService:GetMouseLocation().Y)
-        
-        VerticalLine.From = Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y - Real_Size)
-        VerticalLine.To = Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y + Real_Size)
-    elseif ToMouse == false then
-        HorizontalLine.From = Vector2.new(Axis_X - Real_Size, Axis_Y)
-        HorizontalLine.To = Vector2.new(Axis_X + Real_Size, Axis_Y)
-    
-        VerticalLine.From = Vector2.new(Axis_X, Axis_Y - Real_Size)
-        VerticalLine.To = Vector2.new(Axis_X, Axis_Y + Real_Size)
-    end
-end)
-
-if DefaultSettings == true then
-    _G.CrosshairVisible = true
-    _G.CrosshairSize = 25
-    CrosshairThickness = 1
-    _G.CrosshairColor = Color3.fromRGB(40, 90, 255)
-    CrosshairTransparency = 0.15
-    DisableKey = Enum.KeyCode.Q
-end
-
-UserInputService.TextBoxFocused:Connect(function()
-    Typing = true
-end)
-
-UserInputService.TextBoxFocusReleased:Connect(function()
-    Typing = false
-end)
-
-UserInputService.InputBegan:Connect(function(Input)
-    if Input.KeyCode == DisableKey and Typing == false then
-        _G.CrosshairVisible = not _G.CrosshairVisible
-        
-        if SendNotifications == true then
-            game:GetService("StarterGui"):SetCore("SendNotification",{
-                Title = "Operation Nexus Private";
-                Text = "The crosshair's visibility is now set to "..tostring(_G.CrosshairVisible)..".";
-                Duration = 5;
-            })
-        end
-    end
-end)
-
-CrosshairSettings:NewToggle("Enable Crosshair", "Or Keypad", function(state)
-    _G.CrosshairVisible = state
-end)
-
-CrosshairSettings:NewSlider("Crosshair Size", "Changes the size of the Crosshair", 200, 0, function(s)
-    _G.CrosshairSize = s
-end)
-
-CrosshairSettings:NewColorPicker("Crosshair Color", "Changes the color of the crosshair", Color3.fromRGB(0, 0, 0), function(color)
-    _G.CrosshairColor = color
-end)
-
-local perf = Window:NewTab("Performance")
-local perfsection = perf:NewSection("Coming Soon")
-
-
-local character = Window:NewTab("Character")
-local movementSection = character:NewSection("Movement (UNSAFE)")
-
-movementSection:NewSlider("Walk Speed Slider", "Speed", 500, 0, function(s)
-    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = s
-end)
-
-movementSection:NewSlider("Jump power Slider", "Jump", 500, 0, function(s)
-    game.Players.LocalPlayer.Character.Humanoid.JumpPower = s
-end)
-
-movementSection:NewButton("Fly      (Coming Soon)", "It'a bird, It's a plane...", function()
-
-end)
-
-local Other = Window:NewTab("Other Scripts")
-local OthersSection = Other:NewSection("Scripts")
-
-OthersSection:NewButton("Inf Yield", "In Case You Need It.", function()
-    loadstring(game:HttpGet(("https://raw.githubusercontent.com/PhantomLord157/ProjectBullShit/main/Inf%20Yeild"),true))()
-end)
-
-OthersSection:NewButton("Dark Dex", "In Case You Need It.", function()
-    loadstring(game:HttpGet(("https://raw.githubusercontent.com/PhantomLord157/ProjectBullShit/main/DarkDex"),true))()
-end)
-
---1.7.4.1
