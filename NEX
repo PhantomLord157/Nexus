@@ -26,15 +26,14 @@ local Tabs = {
 }
 
 local CMainL = Tabs.Credits:AddLeftTabbox()
-local CMainR = Tabs.Credits:AddLeftTabbox()
-local CreditInfo = CMainL:AddTab('Credit Information')
+local CMainR = Tabs.Credits:AddRightTabbox()
+local CreditInfo = CMainL:AddTab('Credits')
 local info = CMainR:AddTab('Information')
 
-info:AddLabel('Aimbot Not Working')
-info:AddLabel('More Coming soon')
-
-CreditInfo:AddLabel('PhantomLord157 and TheChimcomMan')
-CreditInfo:AddLabel('https://discord.gg/PNXyRxj5JU')
+CreditInfo:AddLabel('PhantomLord157')
+CreditInfo:AddLabel('TheChimcomMan')
+CreditInfo:AddLabel('MɏŠŦȋʕ シ')
+info:AddLabel('https://discord.gg/PNXyRxj5JU')
 
 local KMainL = Tabs.Keybinds:AddLeftTabbox()
 local KMainR = Tabs.Keybinds:AddRightTabbox()
@@ -51,9 +50,12 @@ Keybinds:AddLabel('Keypad 6 = Expand Fov')
 
 local Main = Tabs.Visuals:AddLeftTabbox()
 local Toggles = Tabs.Visuals:AddRightTabbox()
-local ESPStuff = Main:AddTab('ESP Stuff')
+local ESPS = Main:AddTab('ESP Stuff')
+local fov = Toggles:AddTab('FOV Mods')
+local World = Main:AddTab('World')
+local Crosshair = Toggles:AddTab('Crosshair')
 
-ESPStuff:AddButton('ESP', function()
+ESPS:AddButton('ESP', function()
     --- Configuration
 _G.TeamCheck = true
 _G.Tracers = true
@@ -284,7 +286,7 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 
 end)
 
-ESPStuff:AddButton('Fullbright', function()
+World:AddButton('Fullbright', function()
     while wait(0.1) do
         local Lighting = game:GetService("Lighting")
         Lighting.Ambient = Color3.new(1, 1, 1)
@@ -292,7 +294,7 @@ ESPStuff:AddButton('Fullbright', function()
     end
 end)
 
-ESPStuff:AddButton('No Fog', function()
+World:AddButton('No Fog', function()
     Lighting = game:GetService("Lighting")
     Lighting.FogEnd = 100000
         for i,v in pairs(Lighting:GetDescendants()) do
@@ -302,7 +304,7 @@ ESPStuff:AddButton('No Fog', function()
     end
 end)
 
-ESPStuff:AddButton('Zoom', function()
+fov:AddButton('Zoom', function()
     local player = game.Players.LocalPlayer
     local camera = game.Workspace.CurrentCamera
     local zoomInFOV = 20
@@ -333,7 +335,7 @@ ESPStuff:AddButton('Zoom', function()
     end)
 end)
 
-ESPStuff:AddButton('Expand FOV', function()
+fov:AddButton('Expand FOV', function()
     local player = game.Players.LocalPlayer
     local camera = game.Workspace.CurrentCamera
     local zoomInFOV = 120
@@ -364,15 +366,269 @@ ESPStuff:AddButton('Expand FOV', function()
     end)
 end)
 
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Camera = workspace.CurrentCamera
+
+local Typing = false
+
+local HorizontalLine = Drawing.new("Line")
+local VerticalLine = Drawing.new("Line")
+
+local SendNotifications = true  -- Toggle for notifications
+local DefaultSettings = false  -- Load default settings if true
+local ToMouse = false  -- Crosshair follows mouse if true, stays centered otherwise
+
+_G.CrosshairVisible = false  -- Initial visibility of crosshair
+_G.CrosshairSize = 20  -- Initial size of the crosshair
+local CrosshairThickness = 2  -- Initial thickness
+_G.CrosshairColor = Color3.fromRGB(0, 255, 0)  -- Initial color
+local CrosshairTransparency = 1  -- Initial transparency
+
+local DisableKey = Enum.KeyCode.KeypadFour  -- Key to toggle crosshair
+
+-- Render function for the crosshair
+RunService.RenderStepped:Connect(function()
+    -- Update viewport size and axis position
+    local ViewportSize_ = Camera.ViewportSize / 2
+    local Axis_X, Axis_Y = ViewportSize_.X, ViewportSize_.Y
+    local Real_Size = _G.CrosshairSize / 2
+
+    -- Update line properties
+    HorizontalLine.Color = _G.CrosshairColor
+    HorizontalLine.Thickness = CrosshairThickness
+    HorizontalLine.Visible = _G.CrosshairVisible
+    HorizontalLine.Transparency = CrosshairTransparency
+
+    VerticalLine.Color = _G.CrosshairColor
+    VerticalLine.Thickness = CrosshairThickness
+    VerticalLine.Visible = _G.CrosshairVisible
+    VerticalLine.Transparency = CrosshairTransparency
+
+    if ToMouse then
+        -- Position lines to follow mouse
+        local mousePos = UserInputService:GetMouseLocation()
+        HorizontalLine.From = Vector2.new(mousePos.X - Real_Size, mousePos.Y)
+        HorizontalLine.To = Vector2.new(mousePos.X + Real_Size, mousePos.Y)
+
+        VerticalLine.From = Vector2.new(mousePos.X, mousePos.Y - Real_Size)
+        VerticalLine.To = Vector2.new(mousePos.X, mousePos.Y + Real_Size)
+    else
+        -- Center lines on screen
+        HorizontalLine.From = Vector2.new(Axis_X - Real_Size, Axis_Y)
+        HorizontalLine.To = Vector2.new(Axis_X + Real_Size, Axis_Y)
+
+        VerticalLine.From = Vector2.new(Axis_X, Axis_Y - Real_Size)
+        VerticalLine.To = Vector2.new(Axis_X, Axis_Y + Real_Size)
+    end
+end)
+
+-- Load default settings if enabled
+if DefaultSettings then
+    _G.CrosshairVisible = true
+    _G.CrosshairSize = 25
+    CrosshairThickness = 1
+    _G.CrosshairColor = Color3.fromRGB(40, 90, 255)
+    CrosshairTransparency = 0.15
+    DisableKey = Enum.KeyCode.Q
+end
+
+-- Typing state to disable crosshair toggle during text input
+UserInputService.TextBoxFocused:Connect(function()
+    Typing = true
+end)
+
+UserInputService.TextBoxFocusReleased:Connect(function()
+    Typing = false
+end)
+
+-- Toggle crosshair visibility with the assigned key
+UserInputService.InputBegan:Connect(function(input)
+    if input.KeyCode == DisableKey and not Typing then
+        _G.CrosshairVisible = not _G.CrosshairVisible
+
+        if SendNotifications then
+            game:GetService("StarterGui"):SetCore("SendNotification", {
+                Title = "Operation Nexus Private",
+                Text = "Crosshair visibility: " .. tostring(_G.CrosshairVisible),
+                Duration = 5
+            })
+        end
+    end
+end)
+
+Crosshair:AddToggle('Enable Crosshair', {
+    Text = 'Enable CrossHair',
+    Default = false,
+    Callback = function(state)
+        _G.CrosshairVisible = state
+    end
+})
+
+Crosshair:AddSlider('Crosshair Size', {
+    Text = 'Crosshair Size',
+    Default = 20,
+    Min = 1,
+    Max = 50,
+    Rounding = 0,
+    Callback = function(value)
+        _G.CrosshairSize = value
+    end
+})
+
+Crosshair:AddSlider('Crosshair Thickness (Not Working)', {
+    Text = 'Crosshair Thickness (Not Working)',
+    Default = 1,
+    Min = 1,
+    Max = 50,
+    Rounding = 0,
+    Callback = function(value)
+        _G.CrosshairThickness = value
+    end
+})
+
+--[[
+
+Crosshair:AddColorPicker('Crosshair Color', {
+    Default = Color3.new(1, 1, 1),
+    Title = 'Crosshair Color',
+    Transparency = 0,
+    Callback = function(value)
+        _G.CrosshairColor = value
+    end
+})
+
+]]--
+
 local AMainR = Tabs.Aimbot:AddLeftTabbox()
 local AMainL = Tabs.Aimbot:AddRightTabbox()
 local Aimbot = AMainR:AddTab('Aimbot')
 local aimbot = AMainL:AddTab('Aimbot Toggles')
 
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local Holding = false
+
+-- Aimbot settings
+local AimbotEnabled = false
+local TeamCheck = false
+local AimPart = "Head"
+local Sensitivity = 0.5
+
+-- FOV settings
+local CircleSides = 12
+local CircleColor = Color3.fromRGB(255, 255, 255)
+local CircleTransparency = 0.7
+local CircleRadius = 80
+local CircleFilled = false
+local CircleVisible = false
+local CircleThickness = 3
+
+-- Wall check toggle
+local WallCheckEnabled = false
+
+-- FOV Circle
+local FOVCircle = Drawing.new("Circle")
+FOVCircle.Filled = CircleFilled
+FOVCircle.Visible = CircleVisible
+FOVCircle.Transparency = CircleTransparency
+FOVCircle.Thickness = CircleThickness
+
+-- Function to check if a part is in front of the camera
+local function IsInFrontOfCamera(part)
+    local cameraCFrame = Camera.CFrame
+    local partPosition = part.Position
+    local cameraLookVector = cameraCFrame.LookVector
+    local directionToPart = (partPosition - cameraCFrame.Position).Unit
+    return cameraLookVector:Dot(directionToPart) > 0
+end
+
+-- Function to get the closest player to aim at
+local function GetClosestPlayer()
+    local MaximumDistance = CircleRadius
+    local Target = nil
+    local ClosestDistance = math.huge
+
+    local centerScreen = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+
+    for _, v in pairs(Players:GetPlayers()) do
+        if v ~= LocalPlayer and (not TeamCheck or v.Team ~= LocalPlayer.Team) then
+            local character = v.Character
+            if character then
+                local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+                if humanoidRootPart then
+                    if WallCheckEnabled then
+                        local ray = Ray.new(Camera.CFrame.Position, humanoidRootPart.Position - Camera.CFrame.Position)
+                        local hitPart, hitPosition = workspace:FindPartOnRay(ray)
+                        if hitPart and hitPart.Parent ~= character then
+                            return -- Skip this player if a wall is blocking
+                        end
+                    end
+
+                    local screenPoint = Camera:WorldToScreenPoint(humanoidRootPart.Position)
+                    local vectorDistance = (centerScreen - Vector2.new(screenPoint.X, screenPoint.Y)).Magnitude
+
+                    if vectorDistance < MaximumDistance and vectorDistance < ClosestDistance and IsInFrontOfCamera(humanoidRootPart) then
+                        ClosestDistance = vectorDistance
+                        Target = v
+                    end
+                end
+            end
+        end
+    end
+
+    return Target
+end
+
+-- Handle mouse input for aim lock activation
+UserInputService.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton2 then
+        Holding = true
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton2 then
+        Holding = false
+    end
+end)
+
+-- Main loop to handle aiming and rendering the FOV circle
+RunService.RenderStepped:Connect(function()
+    -- Update FOV circle
+    FOVCircle.Position = UserInputService:GetMouseLocation()
+    FOVCircle.Radius = CircleRadius
+    FOVCircle.Color = CircleColor
+    FOVCircle.Visible = CircleVisible
+    FOVCircle.Transparency = CircleTransparency
+    FOVCircle.Thickness = CircleThickness
+
+    -- Aimbot functionality
+    if Holding and AimbotEnabled then
+        local targetPlayer = GetClosestPlayer()
+        if targetPlayer then
+            local targetPart = targetPlayer.Character and targetPlayer.Character:FindFirstChild(AimPart)
+            if targetPart then
+                local targetPosition = targetPart.Position
+                local lookVector = (targetPosition - Camera.CFrame.Position).Unit
+                local targetCFrame = CFrame.new(Camera.CFrame.Position, Camera.CFrame.Position + lookVector)
+
+                -- Tween camera to smoothly follow target
+                TweenService:Create(Camera, TweenInfo.new(Sensitivity, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {CFrame = targetCFrame}):Play()
+            end
+        end
+    end
+end)
+
+-- Add Toggles and Sliders
 aimbot:AddToggle('Aim Lock', {
     Text = 'Aim Lock',
     Default = false,
-
     Callback = function(state)
         AimbotEnabled = state
     end
@@ -380,21 +636,25 @@ aimbot:AddToggle('Aim Lock', {
 
 aimbot:AddToggle('Circle Visibility', {
     Text = 'Circle Visibility',
-    Default = true,
-
+    Default = false,
     Callback = function(state)
         CircleVisible = state
-        FOVCircle.Visible = state
     end
 })
 
-aimbot:AddToggle('Circle Filled', {
-    Text = 'Circle Filled',
+aimbot:AddToggle('Team Check', {
+    Text = 'Team Check',
     Default = false,
+    Callback = function(state)
+        TeamCheck = state
+    end
+})
 
+aimbot:AddToggle('Circle Filled (Broken)', {
+    Text = 'Circle Filled (Broken)',
+    Default = false,
     Callback = function(state)
         CircleFilled = state
-        FOVCircle.Filled = state
     end
 })
 
@@ -404,7 +664,6 @@ aimbot:AddSlider('FOV Size', {
     Min = 10,
     Max = 200,
     Rounding = 0,
-
     Callback = function(value)
         CircleRadius = value
     end
@@ -416,7 +675,6 @@ aimbot:AddSlider('Circle Transparency', {
     Min = 0.01,
     Max = 1,
     Rounding = 0,
-
     Callback = function(value)
         CircleTransparency = value
         FOVCircle.Transparency = value
@@ -429,25 +687,26 @@ aimbot:AddSlider('Circle Thickness', {
     Min = 1,
     Max = 10,
     Rounding = 0,
-
     Callback = function(value)
         CircleThickness = value
         FOVCircle.Thickness = value
     end
 })
 
-aimbot:AddSlider('Sensitivity', {
-    Text = 'Sensitivity',
+aimbot:AddSlider('Sensitivity (Weird)', {
+    Text = 'Sensitivity (Weird)',
     Default = 0.5,
     Min = 0,
-    Max = 50,
-    Rounding = 0,
+    Max = 1,
+    Rounding = 0.001,
 
     Callback = function(value)
         Sensitivity = value
     end
 })
 
+
+--[[
 aimbot:AddColorPicker('Circle Color', {
     Default = Color3.new(0, 0, 255),
     Title = 'Circle Color',
@@ -472,10 +731,13 @@ aimbot:AddColorPicker('Circle Color', {
         AimPart = option
     end
 })
+--]]
 
-local MMainL = Tabs.Misc:AddLeftTabbox()
-local MMainR = Tabs.Misc:AddRightTabbox()
-local Movement = MMainL:AddTab('Movment')
+
+local MMainR = Tabs.Misc:AddLeftTabbox()
+local MMainL = Tabs.Misc:AddRightTabbox()
+local Misc = MMainL:AddTab('Other Stuff')
+local Movment = MMainR:AddTab('Movment')
 
 Movment:AddSlider('Walk Speed', {
     Text = 'Walk Speed',
@@ -501,10 +763,22 @@ Movment:AddSlider('Jump Power', {
     end
 })
 
+Misc:AddLabel('Other Scripts')
+
+Misc:AddButton('Inf Yeild', function()
+    loadstring(game:HttpGet(("https://raw.githubusercontent.com/PhantomLord157/ProjectBullShit/main/Inf%20Yeild"),true))()
+end)
+
+Misc:AddButton('Dark Dex (Broken)', function()
+    loadstring(game:HttpGet(("https://raw.githubusercontent.com/PhantomLord157/ProjectBullShit/main/DarkDex"),true))()
+end)
+
 local UMainR = Tabs.UISettings:AddRightTabbox()
 local UMainL = Tabs.UISettings:AddLeftTabbox()
-local ui = UMainR:AddTab('UI Settings')
-local UI = UMainL:AddTab('UI Settings')
+local ui = UMainR:AddTab('Settings')
+local UI = UMainL:AddTab('Settings')
+
+--[[
 
 -- Add toggle for the watermark visibility
 ui:AddToggle('showwatermark', {
@@ -611,3 +885,4 @@ RunService.Stepped:Connect(function()
         math.floor(game:GetService('Stats').Network.ServerStatsItem['Data Ping']:GetValue())
     )
 end)
+]]--
