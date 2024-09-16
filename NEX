@@ -518,7 +518,7 @@ local Holding = false
 local AimbotEnabled = false
 local TeamCheck = false
 local AimPart = "Head"
-local Sensitivity = 0.5
+local Sensitivity = 0
 
 -- FOV settings
 local CircleSides = 12
