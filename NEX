@@ -58,7 +58,7 @@ local Crosshair = Toggles:AddTab('Crosshair')
 ESPS:AddButton('ESP', function()
     --- Configuration
 _G.TeamCheck = true
-_G.Tracers = true
+_G.Tracers = false
 _G.PlayerLabelsEnabled = true -- New toggle for player labels and highlights
 
 -- Key Bindings
