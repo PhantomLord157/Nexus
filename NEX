@@ -288,7 +288,7 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 end)
 
 World:AddButton('Fullbright', function()
-    while wait(0.1) do
+    while wait(0.01) do
         local Lighting = game:GetService("Lighting")
         Lighting.Ambient = Color3.new(1, 1, 1)
         Lighting.OutdoorAmbient = Color3.new(1, 1, 1)
