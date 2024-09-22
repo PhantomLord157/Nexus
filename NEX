@@ -740,6 +740,12 @@ local MMainL = Tabs.Misc:AddRightTabbox()
 local Misc = MMainL:AddTab('Other Stuff')
 local Movment = MMainR:AddTab('Movment')
 
+Movment:AddButton('Loop 50 speed', function()
+    while wait(0.01) do
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 50
+    end
+end)
+
 Movment:AddSlider('Walk Speed', {
     Text = 'Walk Speed',
     Default = 20,
