@@ -333,7 +333,7 @@ local CircleColor = Color3.fromRGB(255, 255, 255)
 local CircleTransparency = 0.7
 local CircleRadius = 80
 local CircleFilled = false
-local CircleVisible = false
+local CircleVisible = true
 local CircleThickness = 3
 
 -- Wall check toggle
@@ -355,33 +355,36 @@ local function IsInFrontOfCamera(part)
     return cameraLookVector:Dot(directionToPart) > 0
 end
 
+-- Function to check if a player is in FOV
+local function IsPlayerInFOV(player)
+    local screenPoint = Camera:WorldToScreenPoint(player.Character.HumanoidRootPart.Position)
+    local centerScreen = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+    local distanceFromCenter = (centerScreen - Vector2.new(screenPoint.X, screenPoint.Y)).Magnitude
+    return distanceFromCenter <= CircleRadius
+end
+
 -- Function to get the closest player to aim at
 local function GetClosestPlayer()
-    local MaximumDistance = CircleRadius
     local Target = nil
     local ClosestDistance = math.huge
-
-    local centerScreen = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
 
     for _, v in pairs(Players:GetPlayers()) do
         if v ~= LocalPlayer and (not TeamCheck or v.Team ~= LocalPlayer.Team) then
             local character = v.Character
             if character then
                 local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-                if humanoidRootPart then
+                if humanoidRootPart and IsInFrontOfCamera(humanoidRootPart) and IsPlayerInFOV(v) then
                     if WallCheckEnabled then
                         local ray = Ray.new(Camera.CFrame.Position, humanoidRootPart.Position - Camera.CFrame.Position)
                         local hitPart, hitPosition = workspace:FindPartOnRay(ray)
                         if hitPart and hitPart.Parent ~= character then
-                            return -- Skip this player if a wall is blocking
+                            continue -- Skip this player if a wall is blocking
                         end
                     end
 
-                    local screenPoint = Camera:WorldToScreenPoint(humanoidRootPart.Position)
-                    local vectorDistance = (centerScreen - Vector2.new(screenPoint.X, screenPoint.Y)).Magnitude
-
-                    if vectorDistance < MaximumDistance and vectorDistance < ClosestDistance and IsInFrontOfCamera(humanoidRootPart) then
-                        ClosestDistance = vectorDistance
+                    local distance = (humanoidRootPart.Position - Camera.CFrame.Position).Magnitude
+                    if distance < ClosestDistance then
+                        ClosestDistance = distance
                         Target = v
                     end
                 end
@@ -447,6 +450,14 @@ aimbot:AddToggle('Circle Visibility', {
     Callback = function(state)
         CircleVisible = state
     end
+}):AddColorPicker('Circle Color', {
+    Default = Color3.new(0, 0, 255),
+    Title = 'Circle Color',
+    Transparency = 0,
+
+    Callback = function(color)
+        CircleColor = color
+    end
 })
 
 aimbot:AddToggle('Team Check', {
@@ -454,14 +465,6 @@ aimbot:AddToggle('Team Check', {
     Default = false,
     Callback = function(state)
         TeamCheck = state
-    end
-})
-
-aimbot:AddToggle('Circle Filled (Broken)', {
-    Text = 'Circle Filled (Broken)',
-    Default = false,
-    Callback = function(state)
-        CircleFilled = state
     end
 })
 
@@ -500,45 +503,30 @@ aimbot:AddSlider('Circle Thickness', {
     end
 })
 
-aimbot:AddSlider('Sensitivity (Weird)', {
-    Text = 'Sensitivity (Weird)',
+aimbot:AddSlider('Sensitivity', {
+    Text = 'Sensitivity',
     Default = 0.5,
     Min = 0,
     Max = 1,
-    Rounding = 0.001,
+    Rounding = 0.01,
 
     Callback = function(value)
         Sensitivity = value
     end
 })
 
-
---[[
-aimbot:AddColorPicker('Circle Color', {
-    Default = Color3.new(0, 0, 255),
-    Title = 'Circle Color',
-    Transparency = 0,
-
-    Callback = function(color)
-        FOVCircle = color
-        CircleColor = color
-        FOVCircle.Color = color
-    end
-})
-
  aimbot:AddDropdown('Aim Part', {
-    Values = {'Head', 'Torso'},
+    Values = {'Head', 'Torso', 'Right Arm', 'Left Arm', 'Right Leg', 'Left Leg'},
     Default = 1,
     Multi = false,
 
     Text = 'Aim Lock Part',
     Tooltip = 'Select Part',
 
-    Callback = function(option)
-        AimPart = option
+    Callback = function(value)
+        AimPart = value
     end
 })
---]]
 
 
 local MMainR = Tabs.Misc:AddLeftTabbox()
