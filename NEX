@@ -32,7 +32,6 @@ local info = CMainR:AddTab('Information')
 
 CreditInfo:AddLabel('PhantomLord157')
 CreditInfo:AddLabel('TheChimcomMan')
-CreditInfo:AddLabel('CogWorks')
 CreditInfo:AddLabel('MɏŠŦȋʕ シ')
 info:AddLabel('https://discord.gg/PNXyRxj5JU')
 
@@ -55,6 +54,95 @@ local ESPS = Main:AddTab('ESP Stuff')
 local fov = Toggles:AddTab('FOV Mods')
 local World = Main:AddTab('World')
 local Crosshair = Toggles:AddTab('Crosshair')
+
+local chamsEnabled = true
+local fillColor = Color3.fromRGB(0, 0, 0)
+local outlineColor = Color3.fromRGB(255, 0, 0)
+local teammateFillColor = Color3.fromRGB(0, 255, 0)
+local teammateOutlineColor = Color3.fromRGB(0, 0, 255)
+
+local localPlayer = game.Players.LocalPlayer
+
+-- Function to determine if a player is a teammate
+local function isTeammate(player)
+    return player.Team == localPlayer.Team
+end
+
+-- Function to manage chams for a character
+local function manageChams(character, player, shouldRemove)
+    if character and character ~= localPlayer.Character then
+        local highlight = character:FindFirstChild("Highlight")
+        
+        if shouldRemove then
+            if highlight then
+                highlight:Destroy()
+                print("Chams removed from " .. character.Name)
+            end
+        else
+            if not highlight then
+                local newHighlight = Instance.new("Highlight")
+                newHighlight.Name = "Highlight"
+                newHighlight.Adornee = character
+                newHighlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+
+                if isTeammate(player) then
+                    newHighlight.FillColor = teammateFillColor
+                    newHighlight.OutlineColor = teammateOutlineColor
+                else
+                    newHighlight.FillColor = fillColor
+                    newHighlight.OutlineColor = outlineColor
+                end
+
+                newHighlight.Parent = character
+                print("Chams added to " .. character.Name)
+            end
+        end
+    end
+end
+
+-- Handle when a player's character is added or respawned
+local function onCharacterAdded(player)
+    local character = player.Character or player.CharacterAdded:Wait()
+
+    character:WaitForChild("Humanoid")
+    character:WaitForChild("HumanoidRootPart")
+
+    manageChams(character, player, false)
+
+    -- Remove chams on death
+    character.Humanoid.Died:Connect(function()
+        manageChams(character, player, true)
+    end)
+end
+
+-- Handle when a player is added to the game
+local function onPlayerAdded(player)
+    if player ~= localPlayer then
+        player.CharacterAdded:Connect(function()
+            onCharacterAdded(player)
+        end)
+
+        -- Apply chams immediately if the player already has a character
+        if player.Character then
+            onCharacterAdded(player)
+        end
+    end
+end
+
+-- Toggle chams for all players based on the toggle state
+local function toggleChams()
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player.Character and player ~= localPlayer then
+            manageChams(player.Character, player, not chamsEnabled)
+        end
+    end
+end
+
+-- Connect PlayerAdded events
+game.Players.PlayerAdded:Connect(onPlayerAdded)
+for _, player in pairs(game.Players:GetPlayers()) do
+    onPlayerAdded(player)
+end
 
 ESPS:AddToggle('chams', {
     Text = 'Chams',
@@ -94,7 +182,7 @@ ESPS:AddToggle('chams', {
 })
 
 World:AddButton('Fullbright', function()
-    while wait(0.01) do
+    while wait(0.1) do
         local Lighting = game:GetService("Lighting")
         Lighting.Ambient = Color3.new(1, 1, 1)
         Lighting.OutdoorAmbient = Color3.new(1, 1, 1)
@@ -271,6 +359,13 @@ Crosshair:AddToggle('Enable Crosshair', {
     Callback = function(state)
         _G.CrosshairVisible = state
     end
+}):AddColorPicker('Crosshair Color', {
+    Default = Color3.new(1, 1, 1),
+    Title = 'Crosshair Color',
+    Transparency = 0,
+    Callback = function(value)
+        _G.CrosshairColor = value
+    end
 })
 
 Crosshair:AddSlider('Crosshair Size', {
@@ -295,19 +390,6 @@ Crosshair:AddSlider('Crosshair Thickness (Not Working)', {
     end
 })
 
---[[
-
-Crosshair:AddColorPicker('Crosshair Color', {
-    Default = Color3.new(1, 1, 1),
-    Title = 'Crosshair Color',
-    Transparency = 0,
-    Callback = function(value)
-        _G.CrosshairColor = value
-    end
-})
-
-]]--
-
 local AMainR = Tabs.Aimbot:AddLeftTabbox()
 local AMainL = Tabs.Aimbot:AddRightTabbox()
 local Aimbot = AMainR:AddTab('Aimbot')
@@ -325,7 +407,7 @@ local Holding = false
 local AimbotEnabled = false
 local TeamCheck = false
 local AimPart = "Head"
-local Sensitivity = 0
+local Sensitivity = 0.1
 
 -- FOV settings
 local CircleSides = 12
@@ -529,16 +611,83 @@ aimbot:AddSlider('Sensitivity', {
 })
 
 
+local GMainL = Tabs.Games:AddLeftTabbox()
+local GMainR = Tabs.Games:AddRightTabbox()
+local PD = GMainL:AddTab('Project Delta')
+
+PD:AddButton('Meme Sky', function()
+    local newSky = Instance.new("Sky")
+    newSky.Name = "MemeSky"
+    newSky.SkyboxBk = "rbxassetid://11818627057"
+    newSky.SkyboxDn = "rbxassetid://11818627057"
+    newSky.SkyboxFt = "rbxassetid://11818627057"
+    newSky.SkyboxLf = "rbxassetid://11818627057"
+    newSky.SkyboxRt = "rbxassetid://11818627057"
+    newSky.SkyboxUp = "rbxassetid://11818627057"
+    newSky.SunTextureId = "rbxassetid://1084748042"
+
+    for _, v in pairs(game.ReplicatedStorage:GetChildren()) do
+        if v:IsA("Sky") then
+            v:Destroy()
+        end
+    end
+    newSky.Parent = game.Lighting
+end)
+
+PD:AddButton("remove foliage", function()
+    for _, v in pairs(workspace.SpawnerZones:GetDescendants()) do
+        if v.ClassName == "MeshPart" and v:FindFirstChildOfClass("SurfaceAppearance") then
+            v:Destroy()
+        end
+    end
+end)
+
+PD:AddButton("Remove Grass", function()
+    local grass = game.Workspace:GetChildren("Terrain")
+    grass.GrassLength = 0.1
+    grass.Decoration = false
+end)
+
+local varsglobal = {
+    visuals = {
+        gradientenabled = false,
+        gradientcolor1 = Color3.fromRGB(90, 90, 90),
+        gradientcolor2 = Color3.fromRGB(150, 150, 150),
+        oldgradient1 = Lighting.Ambient,
+        oldgradient2 = Lighting.OutdoorAmbient,
+        FogEnabled = false,
+        oldFogStart = Lighting.FogStart,
+        oldFogEnd = Lighting.FogEnd,
+        oldFogColor = Lighting.FogColor,
+        FogStart = 0,
+        FogEnd = 0,
+        FogColor = Color3.fromRGB(255, 255, 255),
+        oldTime = Lighting.ClockTime,
+        Time = 14,
+        FovChanger = false,
+        FovAdd = 0,
+        OldFov = workspace.CurrentCamera.FieldOfView,
+        ZoomAmt = 0,
+        FovZoom = false,
+    }}
+
+PD:AddSlider('timechanger', {
+    Text = 'time changer',
+
+    Default = varsglobal.visuals.oldTime,
+    Min = 0,
+    Max = 24,
+    Rounding = 1,
+
+    Compact = false,  
+}):OnChanged(function(State)
+    varsglobal.visuals.Time = State
+end)
+
 local MMainR = Tabs.Misc:AddLeftTabbox()
 local MMainL = Tabs.Misc:AddRightTabbox()
 local Misc = MMainL:AddTab('Other Stuff')
 local Movment = MMainR:AddTab('Movment')
-
-Movment:AddButton('Loop 50 speed', function()
-    while wait(0.01) do
-        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 50
-    end
-end)
 
 Movment:AddSlider('Walk Speed', {
     Text = 'Walk Speed',
@@ -570,9 +719,8 @@ Misc:AddButton('Inf Yeild', function()
     loadstring(game:HttpGet(("https://raw.githubusercontent.com/PhantomLord157/ProjectBullShit/main/Inf%20Yeild"),true))()
 end)
 
-Misc:AddButton('Dark Dex', function()
-    --Dark Dex
-    if game:GetService'CoreGui':FindFirstChild'Dex'then game:GetService'CoreGui'.Dex:Destroy()end;math.randomseed(tick())local a={}for b=48,57 do table.insert(a,string.char(b))end;for b=65,90 do table.insert(a,string.char(b))end;for b=97,122 do table.insert(a,string.char(b))end;function RandomCharacters(c)if c>0 then return RandomCharacters(c-1)..a[math.random(1,#a)]else return''end end;local d=game:GetObjects('rbxassetid://3567096419')[1]d.Name=RandomCharacters(math.random(5,20))d.Parent=game:GetService('CoreGui')local function e(f,g)local function h(i,j)local k={}local l={script=j}local m={}m.__index=function(n,o)if l[o]==nil then return getfenv()[o]else return l[o]end end;m.__newindex=function(n,o,p)if l[o]==nil then getfenv()[o]=p else l[o]=p end end;setmetatable(k,m)setfenv(i,k)return i end;local function q(j)if j.ClassName=='Script'or j.ClassName=='LocalScript'then spawn(function()h(loadstring(j.Source,'='..j:GetFullName()),j)()end)end;for b,r in pairs(j:GetChildren())do q(r)end end;q(f)end;e(d)
+Misc:AddButton('Dark Dex (Broken)', function()
+    loadstring(game:HttpGet(("https://raw.githubusercontent.com/PhantomLord157/ProjectBullShit/main/DarkDex"),true))()
 end)
 
 local UMainR = Tabs.UISettings:AddRightTabbox()
