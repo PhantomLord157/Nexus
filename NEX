@@ -56,236 +56,42 @@ local fov = Toggles:AddTab('FOV Mods')
 local World = Main:AddTab('World')
 local Crosshair = Toggles:AddTab('Crosshair')
 
-ESPS:AddButton('ESP', function()
-    --- Configuration
-_G.TeamCheck = true
-_G.Tracers = false
-_G.PlayerLabelsEnabled = true -- New toggle for player labels and highlights
-
--- Key Bindings
-local toggleKeyTeamCheck = Enum.KeyCode.KeypadThree
-local toggleKeyTracers = Enum.KeyCode.KeypadTwo
-local toggleKeyESP = Enum.KeyCode.KeypadOne -- Toggle ESP (Player Labels & Highlights)
-
--- LocalPlayer and Services
-local player = game.Players.LocalPlayer
-local RunService = game:GetService("RunService")
-local camera = workspace.CurrentCamera
-local DebrisService = game:GetService("Debris")
-local UserInputService = game:GetService("UserInputService")
-
--- Highlight colors
-local redHighlightColor = Color3.new(1, 0, 0)
-local greenHighlightColor = Color3.new(0, 1, 0)
-
--- Create a highlight instance if it doesn't exist
-local function createHighlight(character, highlightColor)
-    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-    if humanoidRootPart and not humanoidRootPart:FindFirstChild("Highlight") then
-        local highlight = Instance.new("Highlight")
-        highlight.Name = "Highlight"
-        highlight.Adornee = character
-        highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-        highlight.FillColor = highlightColor
-        highlight.Parent = humanoidRootPart
-        return highlight
+ESPS:AddToggle('chams', {
+    Text = 'Chams',
+    Default = chamsEnabled,
+    Callback = function(value)
+        chamsEnabled = value
+        toggleChams()
     end
-end
-
--- Update the highlight for a character based on team check
-local function updateHighlight(character)
-    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-    if humanoidRootPart then
-        local highlight = humanoidRootPart:FindFirstChild("Highlight")
-        if _G.TeamCheck and player.TeamColor == character:FindFirstChild("TeamColor") then
-            if highlight then
-                highlight.FillColor = greenHighlightColor
-            else
-                createHighlight(character, greenHighlightColor)
-            end
-        else
-            if highlight then
-                highlight.FillColor = redHighlightColor
-            else
-                createHighlight(character, redHighlightColor)
-            end
-        end
+}):AddColorPicker('fill color', {
+    Default = fillColor,
+    Title = 'Fill Color',
+    Callback = function(Value)
+        fillColor = Value
+        toggleChams()
     end
-end
-
--- Create player label if it doesn't exist
-local function createPlayerLabel(head)
-    local nameLabel = Instance.new("BillboardGui")
-    nameLabel.Name = "PlayerLabel"
-    nameLabel.AlwaysOnTop = true
-    nameLabel.ExtentsOffset = Vector3.new(0, 3, 0)
-    nameLabel.Size = UDim2.new(0, 100, 0, 30)
-    nameLabel.Parent = head
-
-    local nameLabelText = Instance.new("TextLabel")
-    nameLabelText.Name = "NameLabel"
-    nameLabelText.BackgroundTransparency = 1
-    nameLabelText.Size = UDim2.new(1, 0, 0.5, 0)
-    nameLabelText.Font = Enum.Font.SourceSansBold
-    nameLabelText.TextSize = 18
-    nameLabelText.TextColor3 = Color3.new(1, 1, 1)
-    nameLabelText.Parent = nameLabel
-
-    local healthLabel = Instance.new("TextLabel")
-    healthLabel.Name = "HealthLabel"
-    healthLabel.BackgroundTransparency = 1
-    healthLabel.Position = UDim2.new(0, 0, 0.5, 0)
-    healthLabel.Size = UDim2.new(1, 0, 0.5, 0)
-    healthLabel.Font = Enum.Font.SourceSansBold
-    healthLabel.TextSize = 18
-    healthLabel.TextColor3 = Color3.new(1, 1, 1)
-    healthLabel.Parent = nameLabel
-
-    return nameLabel
-end
-
--- Update labels for all players
-local function updatePlayerLabels()
-    local playerPosition = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-    if not playerPosition then return end
-
-    for _, otherPlayer in ipairs(game.Players:GetPlayers()) do
-        if otherPlayer ~= player then
-            local character = otherPlayer.Character
-            local humanoid = character and character:FindFirstChild("Humanoid")
-            local head = character and character:FindFirstChild("Head")
-            if humanoid and head and humanoid.Health > 0 then
-                local nameLabel = head:FindFirstChild("PlayerLabel") or createPlayerLabel(head)
-                local distanceStuds = (head.Position - playerPosition.Position).Magnitude
-                local distanceMeters = distanceStuds * 0.2 -- Convert distance to meters
-
-                -- Update the label text
-                nameLabel.NameLabel.Text = otherPlayer.Name
-                nameLabel.HealthLabel.Text = string.format("Distance: %.2f m | Health: %d", distanceMeters, humanoid.Health)
-
-                -- Update the highlight
-                updateHighlight(character)
-
-                -- Set team-based color for label
-                if _G.TeamCheck and player.TeamColor == otherPlayer.TeamColor then
-                    nameLabel.NameLabel.TextColor3 = Color3.new(0, 1, 0)
-                else
-                    nameLabel.NameLabel.TextColor3 = Color3.new(1, 0, 0)
-                end
-            else
-                if head and head:FindFirstChild("PlayerLabel") then
-                    head.PlayerLabel:Destroy()
-                end
-                local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
-                if humanoidRootPart and humanoidRootPart:FindFirstChild("Highlight") then
-                    humanoidRootPart.Highlight:Destroy()
-                end
-            end
-        end
+}):AddColorPicker('outline color', {
+    Default = outlineColor,
+    Title = 'Outline Color',
+    Callback = function(Value)
+        outlineColor = Value
+        toggleChams()
     end
-end
-
-
--- Tracers
-local Tracers = {}
-
--- Create a tracer for each player
-local function createTracer(otherPlayer)
-    local tracer = Drawing.new("Line")
-    tracer.Visible = false
-    tracer.Color = Color3.new(1, 0, 0)
-    tracer.Thickness = 1
-    tracer.Transparency = 1
-    Tracers[otherPlayer] = tracer
-end
-
--- Update all tracers
-local function updateTracers()
-    while _G.Tracers do
-        for otherPlayer, tracer in pairs(Tracers) do
-            local character = otherPlayer.Character
-            local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
-            if humanoidRootPart and character:FindFirstChild("Humanoid").Health > 0 then
-                local screenPos, onScreen = camera:WorldToViewportPoint(humanoidRootPart.Position)
-                if onScreen then
-                    tracer.From = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y)
-                    tracer.To = Vector2.new(screenPos.X, screenPos.Y)
-                    tracer.Visible = player.TeamColor ~= otherPlayer.TeamColor or not _G.TeamCheck
-                else
-                    tracer.Visible = false
-                end
-            else
-                tracer.Visible = false
-            end
-        end
-        RunService.Heartbeat:Wait()
+}):AddColorPicker('teammate fill color', {
+    Default = teammateFillColor,
+    Title = 'Teammate Fill Color',
+    Callback = function(Value)
+        teammateFillColor = Value
+        toggleChams()
     end
-end
-
--- Toggle functions
-local function toggleESP()
-    _G.PlayerLabelsEnabled = not _G.PlayerLabelsEnabled
-    _G.Tracers = _G.PlayerLabelsEnabled -- Also toggle tracers when toggling ESP
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Operation Nexus Private",
-        Text = "ESP " .. (_G.PlayerLabelsEnabled and "Enabled" or "Disabled"),
-        Duration = 3
-    })
-end
-
-local function toggleTeamCheck()
-    _G.TeamCheck = not _G.TeamCheck
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Operation Nexus Private",
-        Text = "TeamCheck " .. (_G.TeamCheck and "Enabled" or "Disabled"),
-        Duration = 3
-    })
-end
-
-local function toggleTracers()
-    _G.Tracers = not _G.Tracers
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Operation Nexus Private",
-        Text = "Tracers " .. (_G.Tracers and "Enabled" or "Disabled"),
-        Duration = 3
-    })
-end
-
--- Input handling for toggles
-UserInputService.InputBegan:Connect(function(input, isProcessed)
-    if not isProcessed then
-        if input.KeyCode == toggleKeyTeamCheck then
-            toggleTeamCheck()
-        elseif input.KeyCode == toggleKeyTracers then
-            toggleTracers()
-        elseif input.KeyCode == toggleKeyESP then
-            toggleESP()
-        end
+}):AddColorPicker('teammate outline color', {
+    Default = teammateOutlineColor,
+    Title = 'Teammate Outline Color',
+    Callback = function(Value)
+        teammateOutlineColor = Value
+        toggleChams()
     end
-end)
-
--- Player added event
-game.Players.PlayerAdded:Connect(function(otherPlayer)
-    createTracer(otherPlayer)
-end)
-
--- Initialize tracers for existing players
-for _, otherPlayer in ipairs(game.Players:GetPlayers()) do
-    createTracer(otherPlayer)
-end
-
--- Heartbeat connections for labels and tracers
-RunService.Heartbeat:Connect(updatePlayerLabels)
-coroutine.wrap(updateTracers)()
-
--- Notification
-game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "Operation Nexus Private",
-    Text = "Added ESP",
-    Duration = 5
 })
-
-end)
 
 World:AddButton('Fullbright', function()
     while wait(0.01) do
