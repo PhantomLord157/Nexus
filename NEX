@@ -182,10 +182,10 @@ ESPS:AddToggle('chams', {
 })
 
 local labelsEnabled = true
-local labelColor = Color3.fromRGB(255, 0, 0) -- Default color for enemy labels
-local teammateLabelColor = Color3.fromRGB(0, 0, 0) -- Default color for teammate labels
+local labelColor = Color3.fromRGB(255, 255, 255) -- Default color for enemy labels
+local teammateLabelColor = Color3.fromRGB(255, 255, 255) -- Default color for teammate labels
 local labelOffset = Vector3.new(0, 3, 0) -- Adjust this value to change the vertical offset
-local textSize = 30 -- Default text size
+local textSize = 15 -- Default text size
 
 local localPlayer = game.Players.LocalPlayer
 
@@ -218,7 +218,7 @@ local function manageNameLabel(character, player, shouldRemove)
                 textLabel.Size = UDim2.new(1, 0, 1, 0)
                 textLabel.BackgroundTransparency = 1
                 textLabel.TextColor3 = isTeammate(player) and teammateLabelColor or labelColor
-                textLabel.TextScaled = true
+                textLabel.TextScaled = false -- Disable TextScaled
                 textLabel.TextSize = textSize -- Set the initial text size
                 
                 textLabel.Parent = newLabel
@@ -280,6 +280,7 @@ for _, player in pairs(game.Players:GetPlayers()) do
     onPlayerAdded(player)
 end
 
+-- Adding UI elements for ESP
 ESPS:AddToggle('name labels', {
     Text = 'Name Labels',
     Default = labelsEnabled,
@@ -300,6 +301,18 @@ ESPS:AddToggle('name labels', {
     Callback = function(value)
         teammateLabelColor = value
         toggleNameLabels()
+    end
+})
+
+ESPS:AddSlider('Text Size', {
+    Text = 'Text Size',
+    Default = 50, -- Initial text size
+    Min = 10,
+    Max = 100,
+    Rounding = 0, -- No rounding
+    Callback = function(value)
+        textSize = value -- Update the textSize variable
+        toggleNameLabels() -- Refresh the name labels to apply the new text size
     end
 })
 
@@ -769,42 +782,6 @@ PD:AddButton("Remove Grass", function()
     local grass = game.Workspace:GetChildren("Terrain")
     grass.GrassLength = 0.1
     grass.Decoration = false
-end)
-
-local varsglobal = {
-    visuals = {
-        gradientenabled = false,
-        gradientcolor1 = Color3.fromRGB(90, 90, 90),
-        gradientcolor2 = Color3.fromRGB(150, 150, 150),
-        oldgradient1 = Lighting.Ambient,
-        oldgradient2 = Lighting.OutdoorAmbient,
-        FogEnabled = false,
-        oldFogStart = Lighting.FogStart,
-        oldFogEnd = Lighting.FogEnd,
-        oldFogColor = Lighting.FogColor,
-        FogStart = 0,
-        FogEnd = 0,
-        FogColor = Color3.fromRGB(255, 255, 255),
-        oldTime = Lighting.ClockTime,
-        Time = 14,
-        FovChanger = false,
-        FovAdd = 0,
-        OldFov = workspace.CurrentCamera.FieldOfView,
-        ZoomAmt = 0,
-        FovZoom = false,
-    }}
-
-PD:AddSlider('timechanger', {
-    Text = 'time changer',
-
-    Default = varsglobal.visuals.oldTime,
-    Min = 0,
-    Max = 24,
-    Rounding = 1,
-
-    Compact = false,  
-}):OnChanged(function(State)
-    varsglobal.visuals.Time = State
 end)
 
 local MMainR = Tabs.Misc:AddLeftTabbox()
