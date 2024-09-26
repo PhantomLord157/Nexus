@@ -56,10 +56,10 @@ local World = Main:AddTab('World')
 local Crosshair = Toggles:AddTab('Crosshair')
 
 local chamsEnabled = true
-local fillColor = Color3.fromRGB(0, 0, 0)
-local outlineColor = Color3.fromRGB(255, 0, 0)
-local teammateFillColor = Color3.fromRGB(0, 255, 0)
-local teammateOutlineColor = Color3.fromRGB(0, 0, 255)
+local fillColor = Color3.fromRGB(255, 255, 255)
+local outlineColor = Color3.fromRGB(255, 255, 255)
+local teammateFillColor = Color3.fromRGB(255, 255, 255)
+local teammateOutlineColor = Color3.fromRGB(255, 255, 255)
 
 local localPlayer = game.Players.LocalPlayer
 
@@ -180,6 +180,129 @@ ESPS:AddToggle('chams', {
         toggleChams()
     end
 })
+
+local labelsEnabled = true
+local labelColor = Color3.fromRGB(255, 0, 0) -- Default color for enemy labels
+local teammateLabelColor = Color3.fromRGB(0, 0, 0) -- Default color for teammate labels
+local labelOffset = Vector3.new(0, 3, 0) -- Adjust this value to change the vertical offset
+local textSize = 30 -- Default text size
+
+local localPlayer = game.Players.LocalPlayer
+
+-- Function to determine if a player is a teammate
+local function isTeammate(player)
+    return player.Team == localPlayer.Team
+end
+
+-- Function to manage name labels for a character
+local function manageNameLabel(character, player, shouldRemove)
+    if character and character ~= localPlayer.Character then
+        local label = character:FindFirstChild("NameLabel")
+        
+        if shouldRemove then
+            if label then
+                label:Destroy()
+                print("Label removed from " .. character.Name)
+            end
+        else
+            if not label then
+                local newLabel = Instance.new("BillboardGui")
+                newLabel.Name = "NameLabel"
+                newLabel.Adornee = character:WaitForChild("Head")
+                newLabel.Size = UDim2.new(2, 0, 1, 0)
+                newLabel.AlwaysOnTop = true
+                newLabel.StudsOffset = labelOffset -- Set the vertical offset
+                
+                local textLabel = Instance.new("TextLabel")
+                textLabel.Text = player.Name
+                textLabel.Size = UDim2.new(1, 0, 1, 0)
+                textLabel.BackgroundTransparency = 1
+                textLabel.TextColor3 = isTeammate(player) and teammateLabelColor or labelColor
+                textLabel.TextScaled = true
+                textLabel.TextSize = textSize -- Set the initial text size
+                
+                textLabel.Parent = newLabel
+                newLabel.Parent = character
+
+                print("Label added to " .. character.Name)
+            else
+                -- If label exists, update the text size
+                local textLabel = label:FindFirstChild("TextLabel")
+                if textLabel then
+                    textLabel.TextSize = textSize
+                end
+            end
+        end
+    end
+end
+
+-- Handle when a player's character is added or respawned
+local function onCharacterAdded(player)
+    local character = player.Character or player.CharacterAdded:Wait()
+
+    character:WaitForChild("Humanoid")
+    character:WaitForChild("HumanoidRootPart")
+
+    manageNameLabel(character, player, false)
+
+    -- Remove label on death
+    character.Humanoid.Died:Connect(function()
+        manageNameLabel(character, player, true)
+    end)
+end
+
+-- Handle when a player is added to the game
+local function onPlayerAdded(player)
+    if player ~= localPlayer then
+        player.CharacterAdded:Connect(function()
+            onCharacterAdded(player)
+        end)
+
+        -- Apply name label immediately if the player already has a character
+        if player.Character then
+            onCharacterAdded(player)
+        end
+    end
+end
+
+-- Toggle name labels for all players based on the toggle state
+local function toggleNameLabels()
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player.Character and player ~= localPlayer then
+            manageNameLabel(player.Character, player, not labelsEnabled)
+        end
+    end
+end
+
+-- Connect PlayerAdded events
+game.Players.PlayerAdded:Connect(onPlayerAdded)
+for _, player in pairs(game.Players:GetPlayers()) do
+    onPlayerAdded(player)
+end
+
+ESPS:AddToggle('name labels', {
+    Text = 'Name Labels',
+    Default = labelsEnabled,
+    Callback = function(value)
+        labelsEnabled = value
+        toggleNameLabels()
+    end
+}):AddColorPicker('label color', {
+    Default = labelColor,
+    Title = 'Enemy Label Color',
+    Callback = function(value)
+        labelColor = value
+        toggleNameLabels()
+    end
+}):AddColorPicker('teammate label color', {
+    Default = teammateLabelColor,
+    Title = 'Teammate Label Color',
+    Callback = function(value)
+        teammateLabelColor = value
+        toggleNameLabels()
+    end
+})
+
 
 World:AddButton('Fullbright', function()
     while wait(0.1) do
