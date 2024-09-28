@@ -1,5 +1,11 @@
-loadstring(game:HttpGet(("https://raw.githubusercontent.com/PhantomLord157/Nexus/main/betterUIlibrary"),true))()
+-- Load the UI library
+loadstring(game:HttpGet(("https://raw.githubusercontent.com/PhantomLord157/Nexus/main/betterUIlibrary"), true))()
 
+-- Define Titles
+local title2 = 'Nexus.Core | Version 3.0.0'
+local title = 'Nexus.Core | v%s | fps %s | ping %s'
+
+-- Create window using the library
 local Window = Library:CreateWindow({
     Title = title2,
     Center = true,
@@ -7,14 +13,14 @@ local Window = Library:CreateWindow({
     TabPadding = 8
 })
 
-local title, title2 = 'Nex | v%s | fps %s | ping %s', 'Operation Nexus | Version 2.0.0'
-
+-- Send notification
 game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "Operation Nexus Private",
+    Title = "Nexus.Core Private",
     Text = "Nexus Private Loaded",
-    Duration = 5;
+    Duration = 5
 })
 
+-- Tabs
 local Tabs = {
     Credits = Window:AddTab('Credits'),
     Keybinds = Window:AddTab('Keybinds'),
@@ -25,33 +31,53 @@ local Tabs = {
     UISettings = Window:AddTab('Settings')
 }
 
+-- Create tab sections
 local CMainL = Tabs.Credits:AddLeftTabbox()
 local CMainR = Tabs.Credits:AddRightTabbox()
 local CreditInfo = CMainL:AddTab('Credits')
 local info = CMainR:AddTab('Information')
 
+-- Credits Info
 CreditInfo:AddLabel('PhantomLord157')
 CreditInfo:AddLabel('TheChimcomMan')
-CreditInfo:AddLabel('Jpthmanjr454')
 CreditInfo:AddLabel('Cogworks')
+CreditInfo:AddLabel('Jpthmanjr454')
 CreditInfo:AddLabel('MɏŠŦȋʕ シ')
 info:AddLabel('https://discord.gg/PNXyRxj5JU')
 
+-- Keybinds Tab
 local KMainL = Tabs.Keybinds:AddLeftTabbox()
-local KMainR = Tabs.Keybinds:AddRightTabbox()
 local Keybindss = KMainL:AddTab('Keybinds')
-local Keybinds = KMainR:AddTab('Keybinds')
+Keybindss:AddLabel('Keypad 4 = Show/Hide Crosshair')
+Keybindss:AddLabel('Keypad 5 = Zoom In')
+Keybindss:AddLabel('Keypad 6 = Expand Fov')
 
-Keybinds:AddLabel('Keypad 4 = Show/Hide Crosshair')
-Keybinds:AddLabel('Keypad 5 = Zoom In')
-Keybinds:AddLabel('Keypad 6 = Expand Fov')
-
+-- Visuals Tab
 local Main = Tabs.Visuals:AddLeftTabbox()
 local Toggles = Tabs.Visuals:AddRightTabbox()
 local ESPS = Main:AddTab('ESP Stuff')
 local fov = Toggles:AddTab('FOV Mods')
 local World = Main:AddTab('World')
 local Crosshair = Toggles:AddTab('Crosshair')
+
+local AMainR = Tabs.Aimbot:AddLeftTabbox()
+local AMainL = Tabs.Aimbot:AddRightTabbox()
+local Aimbot = AMainR:AddTab('Aimbot')
+local aimbot = AMainL:AddTab('Aimbot Toggles')
+
+local MMainR = Tabs.Misc:AddLeftTabbox()
+local MMainL = Tabs.Misc:AddRightTabbox()
+local Misc = MMainL:AddTab('Other Stuff')
+local Movment = MMainR:AddTab('Movment')
+
+local GMainL = Tabs.Games:AddLeftTabbox()
+local GMainR = Tabs.Games:AddRightTabbox()
+local PD = GMainL:AddTab('Project Delta')
+
+local UMainR = Tabs.UISettings:AddRightTabbox()
+local UMainL = Tabs.UISettings:AddLeftTabbox()
+local ui = UMainR:AddTab('Settings')
+local UI = UMainL:AddTab('Settings')
 
 local chamsEnabled = true
 local fillColor = Color3.fromRGB(255, 255, 255)
@@ -700,140 +726,6 @@ fov:AddButton('Expand FOV', function()
 end)
 
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local Camera = workspace.CurrentCamera
-
-local Typing = false
-
-local HorizontalLine = Drawing.new("Line")
-local VerticalLine = Drawing.new("Line")
-
-local SendNotifications = true  -- Toggle for notifications
-local DefaultSettings = false  -- Load default settings if true
-local ToMouse = false  -- Crosshair follows mouse if true, stays centered otherwise
-
-_G.CrosshairVisible = false  -- Initial visibility of crosshair
-_G.CrosshairSize = 20  -- Initial size of the crosshair
-local CrosshairThickness = 2  -- Initial thickness
-_G.CrosshairColor = Color3.fromRGB(0, 255, 0)  -- Initial color
-local CrosshairTransparency = 1  -- Initial transparency
-
-local DisableKey = Enum.KeyCode.KeypadFour  -- Key to toggle crosshair
-
--- Render function for the crosshair
-RunService.RenderStepped:Connect(function()
-    -- Update viewport size and axis position
-    local ViewportSize_ = Camera.ViewportSize / 2
-    local Axis_X, Axis_Y = ViewportSize_.X, ViewportSize_.Y
-    local Real_Size = _G.CrosshairSize / 2
-
-    -- Update line properties
-    HorizontalLine.Color = _G.CrosshairColor
-    HorizontalLine.Thickness = CrosshairThickness
-    HorizontalLine.Visible = _G.CrosshairVisible
-    HorizontalLine.Transparency = CrosshairTransparency
-
-    VerticalLine.Color = _G.CrosshairColor
-    VerticalLine.Thickness = CrosshairThickness
-    VerticalLine.Visible = _G.CrosshairVisible
-    VerticalLine.Transparency = CrosshairTransparency
-
-    if ToMouse then
-        -- Position lines to follow mouse
-        local mousePos = UserInputService:GetMouseLocation()
-        HorizontalLine.From = Vector2.new(mousePos.X - Real_Size, mousePos.Y)
-        HorizontalLine.To = Vector2.new(mousePos.X + Real_Size, mousePos.Y)
-
-        VerticalLine.From = Vector2.new(mousePos.X, mousePos.Y - Real_Size)
-        VerticalLine.To = Vector2.new(mousePos.X, mousePos.Y + Real_Size)
-    else
-        -- Center lines on screen
-        HorizontalLine.From = Vector2.new(Axis_X - Real_Size, Axis_Y)
-        HorizontalLine.To = Vector2.new(Axis_X + Real_Size, Axis_Y)
-
-        VerticalLine.From = Vector2.new(Axis_X, Axis_Y - Real_Size)
-        VerticalLine.To = Vector2.new(Axis_X, Axis_Y + Real_Size)
-    end
-end)
-
--- Load default settings if enabled
-if DefaultSettings then
-    _G.CrosshairVisible = true
-    _G.CrosshairSize = 25
-    CrosshairThickness = 1
-    _G.CrosshairColor = Color3.fromRGB(40, 90, 255)
-    CrosshairTransparency = 0.15
-    DisableKey = Enum.KeyCode.Q
-end
-
--- Typing state to disable crosshair toggle during text input
-UserInputService.TextBoxFocused:Connect(function()
-    Typing = true
-end)
-
-UserInputService.TextBoxFocusReleased:Connect(function()
-    Typing = false
-end)
-
--- Toggle crosshair visibility with the assigned key
-UserInputService.InputBegan:Connect(function(input)
-    if input.KeyCode == DisableKey and not Typing then
-        _G.CrosshairVisible = not _G.CrosshairVisible
-
-        if SendNotifications then
-            game:GetService("StarterGui"):SetCore("SendNotification", {
-                Title = "Operation Nexus Private",
-                Text = "Crosshair visibility: " .. tostring(_G.CrosshairVisible),
-                Duration = 5
-            })
-        end
-    end
-end)
-
-Crosshair:AddToggle('Enable Crosshair', {
-    Text = 'Enable CrossHair',
-    Default = false,
-    Callback = function(state)
-        _G.CrosshairVisible = state
-    end
-}):AddColorPicker('Crosshair Color', {
-    Default = Color3.new(1, 1, 1),
-    Title = 'Crosshair Color',
-    Transparency = 0,
-    Callback = function(value)
-        _G.CrosshairColor = value
-    end
-})
-
-Crosshair:AddSlider('Crosshair Size', {
-    Text = 'Crosshair Size',
-    Default = 20,
-    Min = 1,
-    Max = 50,
-    Rounding = 0,
-    Callback = function(value)
-        _G.CrosshairSize = value
-    end
-})
-
-Crosshair:AddSlider('Crosshair Thickness (Not Working)', {
-    Text = 'Crosshair Thickness (Not Working)',
-    Default = 1,
-    Min = 1,
-    Max = 50,
-    Rounding = 0,
-    Callback = function(value)
-        _G.CrosshairThickness = value
-    end
-})
-
-local AMainR = Tabs.Aimbot:AddLeftTabbox()
-local AMainL = Tabs.Aimbot:AddRightTabbox()
-local Aimbot = AMainR:AddTab('Aimbot')
-local aimbot = AMainL:AddTab('Aimbot Toggles')
-
-local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 local RunService = game:GetService("RunService")
@@ -862,7 +754,8 @@ local WallCheckEnabled = false
 -- Exclude player toggles
 local ExcludeJP = false
 local ExcludeCogworks = false
-local ExcludePhantomLord157 = false -- New exclusion toggle
+local ExcludePhantomLord157 = false
+local ExcludeVenster = false
 
 -- FOV Circle
 local FOVCircle = Drawing.new("Circle")
@@ -901,6 +794,8 @@ local function GetClosestPlayer()
             elseif ExcludeCogworks and v.Name == "CarlosTames2" then
                 continue
             elseif ExcludePhantomLord157 and v.Name == "TheRealMaxHunter1234" then
+                continue
+            elseif ExcludeVenster and v.Name == "J05B09" then
                 continue
             end
 
@@ -1073,6 +968,14 @@ Aimbot:AddToggle('Exclude PhantomLord157', {
     end
 })
 
+Aimbot:AddToggle('Exclude Venster', {
+    Text = 'Exclude Venster',
+    Default = false,
+    Callback = function(state)
+        ExcludeVenster = state
+    end
+})
+
 Aimbot:AddToggle('Wall Check', {
     Text = 'Wall Check',
     Default = false,
@@ -1094,9 +997,134 @@ Aimbot:AddDropdown('Aim Part', {
     end
 })
 
-local GMainL = Tabs.Games:AddLeftTabbox()
-local GMainR = Tabs.Games:AddRightTabbox()
-local PD = GMainL:AddTab('Project Delta')
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Camera = workspace.CurrentCamera
+
+local Typing = false
+
+local HorizontalLine = Drawing.new("Line")
+local VerticalLine = Drawing.new("Line")
+
+local SendNotifications = true  -- Toggle for notifications
+local DefaultSettings = false  -- Load default settings if true
+local ToMouse = false  -- Crosshair follows mouse if true, stays centered otherwise
+
+_G.CrosshairVisible = false  -- Initial visibility of crosshair
+_G.CrosshairSize = 20  -- Initial size of the crosshair
+local CrosshairThickness = 2  -- Initial thickness
+_G.CrosshairColor = Color3.fromRGB(0, 255, 0)  -- Initial color
+local CrosshairTransparency = 1  -- Initial transparency
+
+local DisableKey = Enum.KeyCode.KeypadFour  -- Key to toggle crosshair
+
+-- Render function for the crosshair
+RunService.RenderStepped:Connect(function()
+    -- Update viewport size and axis position
+    local ViewportSize_ = Camera.ViewportSize / 2
+    local Axis_X, Axis_Y = ViewportSize_.X, ViewportSize_.Y
+    local Real_Size = _G.CrosshairSize / 2
+
+    -- Update line properties
+    HorizontalLine.Color = _G.CrosshairColor
+    HorizontalLine.Thickness = CrosshairThickness
+    HorizontalLine.Visible = _G.CrosshairVisible
+    HorizontalLine.Transparency = CrosshairTransparency
+
+    VerticalLine.Color = _G.CrosshairColor
+    VerticalLine.Thickness = CrosshairThickness
+    VerticalLine.Visible = _G.CrosshairVisible
+    VerticalLine.Transparency = CrosshairTransparency
+
+    if ToMouse then
+        -- Position lines to follow mouse
+        local mousePos = UserInputService:GetMouseLocation()
+        HorizontalLine.From = Vector2.new(mousePos.X - Real_Size, mousePos.Y)
+        HorizontalLine.To = Vector2.new(mousePos.X + Real_Size, mousePos.Y)
+
+        VerticalLine.From = Vector2.new(mousePos.X, mousePos.Y - Real_Size)
+        VerticalLine.To = Vector2.new(mousePos.X, mousePos.Y + Real_Size)
+    else
+        -- Center lines on screen
+        HorizontalLine.From = Vector2.new(Axis_X - Real_Size, Axis_Y)
+        HorizontalLine.To = Vector2.new(Axis_X + Real_Size, Axis_Y)
+
+        VerticalLine.From = Vector2.new(Axis_X, Axis_Y - Real_Size)
+        VerticalLine.To = Vector2.new(Axis_X, Axis_Y + Real_Size)
+    end
+end)
+
+-- Load default settings if enabled
+if DefaultSettings then
+    _G.CrosshairVisible = true
+    _G.CrosshairSize = 25
+    CrosshairThickness = 1
+    _G.CrosshairColor = Color3.fromRGB(40, 90, 255)
+    CrosshairTransparency = 0.15
+    DisableKey = Enum.KeyCode.Q
+end
+
+-- Typing state to disable crosshair toggle during text input
+UserInputService.TextBoxFocused:Connect(function()
+    Typing = true
+end)
+
+UserInputService.TextBoxFocusReleased:Connect(function()
+    Typing = false
+end)
+
+-- Toggle crosshair visibility with the assigned key
+UserInputService.InputBegan:Connect(function(input)
+    if input.KeyCode == DisableKey and not Typing then
+        _G.CrosshairVisible = not _G.CrosshairVisible
+
+        if SendNotifications then
+            game:GetService("StarterGui"):SetCore("SendNotification", {
+                Title = "Operation Nexus Private",
+                Text = "Crosshair visibility: " .. tostring(_G.CrosshairVisible),
+                Duration = 5
+            })
+        end
+    end
+end)
+
+Crosshair:AddToggle('Enable Crosshair', {
+    Text = 'Enable CrossHair',
+    Default = false,
+    Callback = function(state)
+        _G.CrosshairVisible = state
+    end
+}):AddColorPicker('Crosshair Color', {
+    Default = Color3.new(1, 1, 1),
+    Title = 'Crosshair Color',
+    Transparency = 0,
+    Callback = function(value)
+        _G.CrosshairColor = value
+    end
+})
+
+Crosshair:AddSlider('Crosshair Size', {
+    Text = 'Crosshair Size',
+    Default = 20,
+    Min = 1,
+    Max = 50,
+    Rounding = 0,
+    Callback = function(value)
+        _G.CrosshairSize = value
+    end
+})
+
+Crosshair:AddSlider('Crosshair Thickness (Not Working)', {
+    Text = 'Crosshair Thickness (Not Working)',
+    Default = 1,
+    Min = 1,
+    Max = 50,
+    Rounding = 0,
+    Callback = function(value)
+        _G.CrosshairThickness = value
+    end
+})
 
 PD:AddButton('Meme Sky', function()
     local newSky = Instance.new("Sky")
@@ -1130,11 +1158,6 @@ PD:AddButton("Remove Grass", function()
     grass.GrassLength = 0.1
     grass.Decoration = false
 end)
-
-local MMainR = Tabs.Misc:AddLeftTabbox()
-local MMainL = Tabs.Misc:AddRightTabbox()
-local Misc = MMainL:AddTab('Other Stuff')
-local Movment = MMainR:AddTab('Movment')
 
 Movment:AddSlider('Walk Speed', {
     Text = 'Walk Speed',
@@ -1170,105 +1193,47 @@ Misc:AddButton('Dark Dex (Broken)', function()
     loadstring(game:HttpGet(("https://raw.githubusercontent.com/PhantomLord157/ProjectBullShit/main/DarkDex"),true))()
 end)
 
-local UMainR = Tabs.UISettings:AddRightTabbox()
-local UMainL = Tabs.UISettings:AddLeftTabbox()
-local ui = UMainR:AddTab('Settings')
-local UI = UMainL:AddTab('Settings')
-
---[[
-
 -- Add toggle for the watermark visibility
+-- Watermark Toggle
 ui:AddToggle('showwatermark', {
     Text = "Show Watermark",
     Default = true,  -- Set to true by default
     Callback = function(value)
-        -- Update visibility of the watermark elements based on the toggle
-        background.Visible = value
-        topbar.Visible = value
-        topbar1.Visible = value
-        logotext.Visible = value
+        -- Update visibility of the watermark text based on the toggle
         text.Visible = value
     end
 })
 
 local RunService = game:GetService("RunService")
-local camera = workspace.CurrentCamera
 
-local function updateTopRightPosition()
-    return Vector2.new(camera.ViewportSize.X - 10, 10) -- 10 pixels from the right and top
+-- Function to update top-left position
+local function updateTopLeftPosition()
+    return Vector2.new(10, 10) -- 10 pixels from the top and left
 end
 
-local toprightpos = updateTopRightPosition()
+-- Watermark Drawing Elements
+local text = Drawing.new("Text")
+text.Text = "Nexus.Core | v3.0.0 | fps | ping"
+text.Size = 13
+text.Font = 1
+text.Outline = true
+text.Transparency = 1
+text.Visible = true
+text.Color = Color3.new(0, 0, 255)
+text.ZIndex = 1
 
-local background = draw:new("Line", {
-    To = toprightpos - Vector2.new(200, -(6+3)),
-    From = toprightpos - Vector2.new(0, -(6+3)),
-    Thickness = 15,
-    Transparency = 0.7,
-    Visible = true,
-    Color = Color3.new(0, 0, 0),
-    ZIndex = 1,
-})
-local topbar = draw:new("Line", {
-    To = toprightpos - Vector2.new(200, 0),
-    From = toprightpos - Vector2.new(0, 0),
-    Thickness = 1,
-    Transparency = 1,
-    Visible = true,
-    Color = Options["watercolor"].Value,
-    ZIndex = 1,
-})
-local topbar1 = draw:new("Line", {
-    To = toprightpos - Vector2.new(200, -1),
-    From = toprightpos - Vector2.new(0, -1),
-    Thickness = 1,
-    Transparency = 1,
-    Visible = true,
-    Color = Options["watercolor"].Value,
-    ZIndex = 1,
-})
-local logotext = draw:new("Text", {
-    Text = "Operation Nexus Private",
-    Size = 13,
-    Font = 1,
-    Outline = true,
-    Center = false,
-    Position = toprightpos - Vector2.new(195, -2),
-    Transparency = 1,
-    Visible = true,
-    Color = Options["watercolor"].Value,
-    ZIndex = 1,
-})
-local text = draw:new("Text", {
-    Text = "V - 1.8.0 | fps | ping",
-    Size = 13,
-    Font = 1,
-    Outline = true,
-    Center = false,
-    Position = toprightpos - Vector2.new(195, 15),
-    Transparency = 1,
-    Visible = true,
-    Color = Color3.new(1, 1, 1),
-    ZIndex = 1,
-})
-draw:changevis(false)
+-- FPS and ping update variables
 local FrameTimer = tick()
 local FrameCounter = 0
 local FPS = 60
 
 RunService.Stepped:Connect(function()
-    local toprightpos = updateTopRightPosition()
+    local topLeftPos = updateTopLeftPosition()
 
-    topbar.To = toprightpos - Vector2.new(logotext.TextBounds.X + text.TextBounds.X + 10, 0)
-    topbar1.To = toprightpos - Vector2.new(logotext.TextBounds.X + text.TextBounds.X + 10, -1)
-    background.To = toprightpos - Vector2.new(logotext.TextBounds.X + text.TextBounds.X + 10, -(6+3))
-    logotext.Position = toprightpos - Vector2.new(logotext.TextBounds.X + text.TextBounds.X + 5, -2)
-    text.Position = toprightpos - Vector2.new(text.TextBounds.X + 5, -2)
+    -- Update the position of each element dynamically
+    text.Position = topLeftPos
 
-    topbar.Color = Options["watercolor"].Value
-    topbar1.Color = Options["watercolor"].Value
-    logotext.Color = Options["watercolor"].Value
-
+    -- FPS and ping update
     FrameCounter = FrameCounter + 1
     if (tick() - FrameTimer) >= 1 then
         FPS = FrameCounter
@@ -1277,9 +1242,8 @@ RunService.Stepped:Connect(function()
     end
 
     text.Text = title:format(
-        "0.0.1",
+        "3.0.0",
         math.floor(FPS),
         math.floor(game:GetService('Stats').Network.ServerStatsItem['Data Ping']:GetValue())
     )
 end)
-]]--
