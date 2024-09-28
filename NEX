@@ -302,6 +302,7 @@ ESPS:AddToggle('name labels', {
     end
 })
 
+--[[
 ESPS:AddSlider('Text Size', {
     Text = 'Text Size',
     Default = 50, -- Initial text size
@@ -314,6 +315,309 @@ ESPS:AddSlider('Text Size', {
     end
 })
 
+]]--
+
+local labelsEnabled = true
+local labelColor = Color3.fromRGB(255, 0, 0) -- Default red color for enemy health labels
+local teammateLabelColor = Color3.fromRGB(255, 0, 0) -- Default red color for teammate health labels
+local labelOffset = Vector3.new(0, 0.5, 0) -- Lowered slightly below the chest
+local textSize = 10 -- Default text size
+
+local localPlayer = game.Players.LocalPlayer
+
+-- Function to determine if a player is a teammate
+local function isTeammate(player)
+    return player.Team == localPlayer.Team
+end
+
+-- Function to manage health labels for a character
+local function manageHealthLabel(character, player, shouldRemove)
+    if character and character ~= localPlayer.Character then
+        local label = character:FindFirstChild("HealthLabel")
+        
+        if shouldRemove then
+            if label then
+                label:Destroy()
+                print("Health label removed from " .. character.Name)
+            end
+        else
+            if not label then
+                local newLabel = Instance.new("BillboardGui")
+                newLabel.Name = "HealthLabel"
+                newLabel.Adornee = character:WaitForChild("HumanoidRootPart")
+                newLabel.Size = UDim2.new(2, 0, 1, 0)
+                newLabel.AlwaysOnTop = true
+                newLabel.StudsOffset = labelOffset -- Set slightly lower than chest
+                
+                local textLabel = Instance.new("TextLabel")
+                textLabel.Text = tostring(character:WaitForChild("Humanoid").Health) -- Set the health value
+                textLabel.Size = UDim2.new(1, 0, 1, 0)
+                textLabel.BackgroundTransparency = 1
+                textLabel.TextColor3 = isTeammate(player) and teammateLabelColor or labelColor
+                textLabel.TextScaled = false -- Disable TextScaled
+                textLabel.TextSize = textSize -- Set the initial text size
+                
+                textLabel.Parent = newLabel
+                newLabel.Parent = character
+
+                -- Update health label when health changes
+                character.Humanoid.HealthChanged:Connect(function(health)
+                    textLabel.Text = tostring(health)
+                end)
+
+                print("Health label added to " .. character.Name)
+            else
+                -- If label exists, update the text size
+                local textLabel = label:FindFirstChild("TextLabel")
+                if textLabel then
+                    textLabel.TextSize = textSize
+                end
+            end
+        end
+    end
+end
+
+-- Handle when a player's character is added or respawned
+local function onCharacterAdded(player)
+    local character = player.Character or player.CharacterAdded:Wait()
+
+    character:WaitForChild("Humanoid")
+    character:WaitForChild("HumanoidRootPart")
+
+    manageHealthLabel(character, player, false)
+
+    -- Remove label on death
+    character.Humanoid.Died:Connect(function()
+        manageHealthLabel(character, player, true)
+    end)
+end
+
+-- Handle when a player is added to the game
+local function onPlayerAdded(player)
+    if player ~= localPlayer then
+        player.CharacterAdded:Connect(function()
+            onCharacterAdded(player)
+        end)
+
+        -- Apply health label immediately if the player already has a character
+        if player.Character then
+            onCharacterAdded(player)
+        end
+    end
+end
+
+-- Toggle health labels for all players based on the toggle state
+local function toggleHealthLabels()
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player.Character and player ~= localPlayer then
+            manageHealthLabel(player.Character, player, not labelsEnabled)
+        end
+    end
+end
+
+-- Connect PlayerAdded events
+game.Players.PlayerAdded:Connect(onPlayerAdded)
+for _, player in pairs(game.Players:GetPlayers()) do
+    onPlayerAdded(player)
+end
+
+-- Adding UI elements for ESP
+ESPS:AddToggle('health labels', {
+    Text = 'Health Labels',
+    Default = labelsEnabled,
+    Callback = function(value)
+        labelsEnabled = value
+        toggleHealthLabels()
+    end
+}):AddColorPicker('label color', {
+    Default = labelColor,
+    Title = 'Enemy Health Label Color',
+    Callback = function(value)
+        labelColor = value
+        toggleHealthLabels()
+    end
+}):AddColorPicker('teammate label color', {
+    Default = teammateLabelColor,
+    Title = 'Teammate Health Label Color',
+    Callback = function(value)
+        teammateLabelColor = value
+        toggleHealthLabels()
+    end
+})
+
+local labelsEnabled = true
+local labelColor = Color3.fromRGB(255, 255, 255) -- Default white color for enemy distance labels
+local teammateLabelColor = Color3.fromRGB(255, 255, 255) -- Default white color for teammate distance labels
+local labelOffset = Vector3.new(0, -1, 0) -- Position just below the chest
+local textSize = 10 -- Default text size
+local distanceType = "Feet" -- Default distance type
+
+local localPlayer = game.Players.LocalPlayer
+
+-- Function to determine if a player is a teammate
+local function isTeammate(player)
+    return player.Team == localPlayer.Team
+end
+
+local function convertDistance(distanceInStuds)
+    if distanceType == "Feet" then
+        return distanceInStuds * 0.28 * 3.28084 -- Convert to feet
+    elseif distanceType == "Meters" then
+        return distanceInStuds * 0.28 -- Convert to meters
+    elseif distanceType == "Yards" then
+        return distanceInStuds * 0.28 * 1.09361 -- Convert to yards
+    elseif distanceType == "Inches" then
+        return distanceInStuds * 0.28 * 39.3701 -- Convert to inches
+    elseif distanceType == "Centimeters" then
+        return distanceInStuds * 0.28 * 100 -- Convert to centimeters
+    end
+end
+
+-- Function to manage distance labels for a character
+local function manageDistanceLabel(character, player, shouldRemove)
+    if character and character ~= localPlayer.Character then
+        local label = character:FindFirstChild("DistanceLabel")
+
+        if shouldRemove then
+            if label then
+                label:Destroy()
+                print("Distance label removed from " .. character.Name)
+            end
+        else
+            if not label then
+                local newLabel = Instance.new("BillboardGui")
+                newLabel.Name = "DistanceLabel"
+                newLabel.Adornee = character:WaitForChild("HumanoidRootPart")
+                newLabel.Size = UDim2.new(2, 0, 1, 0)
+                newLabel.AlwaysOnTop = true
+                newLabel.StudsOffset = labelOffset -- Set to slightly below the chest
+
+                local textLabel = Instance.new("TextLabel")
+                local distanceInStuds = (localPlayer.Character.HumanoidRootPart.Position - character.HumanoidRootPart.Position).magnitude
+                textLabel.Text = string.format("%.1f %s", convertDistance(distanceInStuds), distanceType) -- Initial distance label
+                textLabel.Size = UDim2.new(1, 0, 1, 0)
+                textLabel.BackgroundTransparency = 1
+                textLabel.TextColor3 = isTeammate(player) and teammateLabelColor or labelColor
+                textLabel.TextScaled = false -- Disable TextScaled
+                textLabel.TextSize = textSize -- Set the initial text size
+
+                textLabel.Parent = newLabel
+                newLabel.Parent = character
+
+                -- Update distance label when character position changes
+                game:GetService("RunService").RenderStepped:Connect(function()
+                    if character and character:FindFirstChild("HumanoidRootPart") then
+                        local distance = (localPlayer.Character.HumanoidRootPart.Position - character.HumanoidRootPart.Position).magnitude
+                        textLabel.Text = string.format("%.1f %s", convertDistance(distance), distanceType)
+                    end
+                end)
+
+                print("Distance label added to " .. character.Name)
+            else
+                -- If label exists, update the text size
+                local textLabel = label:FindFirstChild("TextLabel")
+                if textLabel then
+                    textLabel.TextSize = textSize
+                end
+            end
+        end
+    end
+end
+
+-- Handle when a player's character is added or respawned
+local function onCharacterAdded(player)
+    local character = player.Character or player.CharacterAdded:Wait()
+
+    character:WaitForChild("Humanoid")
+    character:WaitForChild("HumanoidRootPart")
+
+    manageDistanceLabel(character, player, false)
+
+    -- Remove label on death
+    character.Humanoid.Died:Connect(function()
+        manageDistanceLabel(character, player, true)
+    end)
+end
+
+-- Handle when a player is added to the game
+local function onPlayerAdded(player)
+    if player ~= localPlayer then
+        player.CharacterAdded:Connect(function()
+            onCharacterAdded(player)
+        end)
+
+        -- Apply distance label immediately if the player already has a character
+        if player.Character then
+            onCharacterAdded(player)
+        end
+    end
+end
+
+-- Toggle distance labels for all players based on the toggle state
+local function toggleDistanceLabels()
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player.Character and player ~= localPlayer then
+            manageDistanceLabel(player.Character, player, not labelsEnabled)
+        end
+    end
+end
+
+-- Connect PlayerAdded events
+game.Players.PlayerAdded:Connect(onPlayerAdded)
+for _, player in pairs(game.Players:GetPlayers()) do
+    onPlayerAdded(player)
+end
+
+-- Adding UI elements for ESP
+ESPS:AddToggle('Distance Labels', {
+    Text = 'Distance Labels',
+    Default = labelsEnabled,
+    Callback = function(value)
+        labelsEnabled = value
+        toggleDistanceLabels()
+    end
+}):AddColorPicker('Label Color', {
+    Default = labelColor,
+    Title = 'Enemy Distance Label Color',
+    Callback = function(value)
+        labelColor = value
+        toggleDistanceLabels()
+    end
+}):AddColorPicker('Teammate Label Color', {
+    Default = teammateLabelColor,
+    Title = 'Teammate Distance Label Color',
+    Callback = function(value)
+        teammateLabelColor = value
+        toggleDistanceLabels()
+    end
+})
+
+ESPS:AddDropdown('Distance Type', {
+    Values = {'Studs', 'Feet', 'Meters', 'Yards', 'Inches', 'Centimeters'},
+    Default = 2, -- Default to Feet
+    Multi = false,
+    
+    Text = 'Distance Measurement',
+    Tooltip = 'Select Distance Type',
+    
+    Callback = function(value)
+        distanceType = value
+        -- Update existing labels with the new distance type
+        for _, player in pairs(game.Players:GetPlayers()) do
+            if player.Character and player ~= localPlayer then
+                local character = player.Character
+                local distanceLabel = character:FindFirstChild("DistanceLabel")
+                if distanceLabel then
+                    local textLabel = distanceLabel:FindFirstChild("TextLabel")
+                    if textLabel then
+                        local distanceInStuds = (localPlayer.Character.HumanoidRootPart.Position - character.HumanoidRootPart.Position).magnitude
+                        textLabel.Text = string.format("%.1f %s", convertDistance(distanceInStuds), distanceType)
+                    end
+                end
+            end
+        end
+    end
+})
 
 World:AddButton('Fullbright', function()
     while wait(0.1) do
