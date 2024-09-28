@@ -32,6 +32,8 @@ local info = CMainR:AddTab('Information')
 
 CreditInfo:AddLabel('PhantomLord157')
 CreditInfo:AddLabel('TheChimcomMan')
+CreditInfo:AddLabel('Jpthmanjr454')
+CreditInfo:AddLabel('Cogworks')
 CreditInfo:AddLabel('MɏŠŦȋʕ シ')
 info:AddLabel('https://discord.gg/PNXyRxj5JU')
 
@@ -40,10 +42,6 @@ local KMainR = Tabs.Keybinds:AddRightTabbox()
 local Keybindss = KMainL:AddTab('Keybinds')
 local Keybinds = KMainR:AddTab('Keybinds')
 
-Keybindss:AddLabel('Keypad 1 = NOT WORKING')
-Keybindss:AddLabel('Keypad 1 = Show/Hide ESP')
-Keybindss:AddLabel('Keypad 2 = Show/Hide Tracers')
-Keybindss:AddLabel('Keypad 3 = Toggle ESP Teamcheck')
 Keybinds:AddLabel('Keypad 4 = Show/Hide Crosshair')
 Keybinds:AddLabel('Keypad 5 = Zoom In')
 Keybinds:AddLabel('Keypad 6 = Expand Fov')
@@ -543,7 +541,7 @@ local Holding = false
 local AimbotEnabled = false
 local TeamCheck = false
 local AimPart = "Head"
-local Sensitivity = 0.1
+local Sensitivity = 0
 
 -- FOV settings
 local CircleSides = 12
@@ -556,6 +554,11 @@ local CircleThickness = 3
 
 -- Wall check toggle
 local WallCheckEnabled = false
+
+-- Exclude player toggles
+local ExcludeJP = false
+local ExcludeCogworks = false
+local ExcludePhantomLord157 = false -- New exclusion toggle
 
 -- FOV Circle
 local FOVCircle = Drawing.new("Circle")
@@ -588,6 +591,15 @@ local function GetClosestPlayer()
 
     for _, v in pairs(Players:GetPlayers()) do
         if v ~= LocalPlayer and (not TeamCheck or v.Team ~= LocalPlayer.Team) then
+            -- Exclude players if toggled
+            if ExcludeJP and v.Name == "Jpthemanjr454" then
+                continue
+            elseif ExcludeCogworks and v.Name == "CarlosTames2" then
+                continue
+            elseif ExcludePhantomLord157 and v.Name == "TheRealMaxHunter1234" then
+                continue
+            end
+
             local character = v.Character
             if character then
                 local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
@@ -654,7 +666,7 @@ RunService.RenderStepped:Connect(function()
 end)
 
 -- Add Toggles and Sliders
-aimbot:AddToggle('Aim Lock', {
+Aimbot:AddToggle('Aim Lock', {
     Text = 'Aim Lock',
     Default = false,
     Callback = function(state)
@@ -678,7 +690,7 @@ aimbot:AddToggle('Circle Visibility', {
     end
 })
 
-aimbot:AddToggle('Team Check', {
+Aimbot:AddToggle('Team Check', {
     Text = 'Team Check',
     Default = false,
     Callback = function(state)
@@ -733,7 +745,39 @@ aimbot:AddSlider('Sensitivity', {
     end
 })
 
- aimbot:AddDropdown('Aim Part', {
+Aimbot:AddToggle('Exclude JP', {
+    Text = 'Exclude JP',
+    Default = false,
+    Callback = function(state)
+        ExcludeJP = state
+    end
+})
+
+Aimbot:AddToggle('Exclude cogworks', {
+    Text = 'Exclude cogworks',
+    Default = false,
+    Callback = function(state)
+        ExcludeCogworks = state
+    end
+})
+
+Aimbot:AddToggle('Exclude PhantomLord157', {
+    Text = 'Exclude PhantomLord157',
+    Default = false,
+    Callback = function(state)
+        ExcludePhantomLord157 = state
+    end
+})
+
+Aimbot:AddToggle('Wall Check', {
+    Text = 'Wall Check',
+    Default = false,
+    Callback = function(state)
+        WallCheckEnabled = state
+    end
+})
+
+Aimbot:AddDropdown('Aim Part', {
     Values = {'Head', 'Torso', 'Right Arm', 'Left Arm', 'Right Leg', 'Left Leg'},
     Default = 1,
     Multi = false,
@@ -745,7 +789,6 @@ aimbot:AddSlider('Sensitivity', {
         AimPart = value
     end
 })
-
 
 local GMainL = Tabs.Games:AddLeftTabbox()
 local GMainR = Tabs.Games:AddRightTabbox()
