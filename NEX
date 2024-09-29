@@ -99,17 +99,18 @@ local CircleColor = Color3.fromRGB(255, 255, 255)
 local CircleTransparency = 0.7
 local CircleRadius = 80
 local CircleFilled = false
-local CircleVisible = true
+local CircleVisible = false
 local CircleThickness = 3
 
 -- Wall check toggle
 local WallCheckEnabled = false
 
 -- Exclude player toggles
-local ExcludeJP = false
-local ExcludeCogworks = false
-local ExcludePhantomLord157 = false
-local ExcludeVenster = false
+local ExcludeJP = true
+local ExcludeCogworks = true
+local ExcludePhantomLord157 = true
+local ExcludeVenster = true
+local ExcludeMonke = true
 
 -- FOV Circle
 local FOVCircle = Drawing.new("Circle")
@@ -150,6 +151,8 @@ local function GetClosestPlayer()
             elseif ExcludePhantomLord157 and v.Name == "TheRealMaxHunter1234" then
                 continue
             elseif ExcludeVenster and v.Name == "J05B09" then
+                continue
+            elseif ExcludeMonke and v.Name == "TheChimcowMan" then
                 continue
             end
 
@@ -286,17 +289,13 @@ aimbot:AddSlider('Circle Thickness', {
     end
 })
 
-aimbot:AddSlider('Sensitivity', {
-    Text = 'Sensitivity',
-    Default = 0.5,
-    Min = 0,
-    Max = 1,
-    Rounding = 0.01,
+aimbot:AddButton('Sensitivity 0.1', function()
+    Sensitivity = 0.1
+end)
 
-    Callback = function(value)
-        Sensitivity = value
-    end
-})
+aimbot:AddButton('Sensitivity 0', function()
+    Sensitivity = 0
+end)
 
 Aimbot:AddToggle('Exclude JP', {
     Text = 'Exclude JP',
@@ -327,6 +326,14 @@ Aimbot:AddToggle('Exclude Venster', {
     Default = false,
     Callback = function(state)
         ExcludeVenster = state
+    end
+})
+
+Aimbot:AddToggle('Exclude Monke', {
+    Text = 'Exclude Monke',
+    Default = false,
+    Callback = function(state)
+        ExcludeMonke = state
     end
 })
 
