@@ -819,7 +819,7 @@ local labelsEnabled = true
 local labelColor = Color3.fromRGB(255, 255, 255) -- Default color for enemy labels
 local teammateLabelColor = Color3.fromRGB(255, 255, 255) -- Default color for teammate labels
 local labelOffset = Vector3.new(0, 3, 0) -- Adjust this value to change the vertical offset
-local textSize = 15 -- Default text size
+local textSize = 10 -- Default text size
 
 local localPlayer = game.Players.LocalPlayer
 
