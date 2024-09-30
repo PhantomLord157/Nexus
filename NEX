@@ -297,46 +297,6 @@ aimbot:AddButton('Sensitivity 0', function()
     Sensitivity = 0
 end)
 
-Aimbot:AddToggle('Exclude JP', {
-    Text = 'Exclude JP',
-    Default = false,
-    Callback = function(state)
-        ExcludeJP = state
-    end
-})
-
-Aimbot:AddToggle('Exclude cogworks', {
-    Text = 'Exclude cogworks',
-    Default = false,
-    Callback = function(state)
-        ExcludeCogworks = state
-    end
-})
-
-Aimbot:AddToggle('Exclude PhantomLord157', {
-    Text = 'Exclude PhantomLord157',
-    Default = false,
-    Callback = function(state)
-        ExcludePhantomLord157 = state
-    end
-})
-
-Aimbot:AddToggle('Exclude Venster', {
-    Text = 'Exclude Venster',
-    Default = false,
-    Callback = function(state)
-        ExcludeVenster = state
-    end
-})
-
-Aimbot:AddToggle('Exclude Monke', {
-    Text = 'Exclude Monke',
-    Default = false,
-    Callback = function(state)
-        ExcludeMonke = state
-    end
-})
-
 Aimbot:AddToggle('Wall Check', {
     Text = 'Wall Check',
     Default = false,
