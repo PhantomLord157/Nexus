@@ -2,7 +2,7 @@
 loadstring(game:HttpGet(("https://raw.githubusercontent.com/PhantomLord157/Nexus/main/betterUIlibrary"), true))()
 
 -- Define Titles
-local title2 = 'Nexus.Core | Version 3.5.0'
+local title2 = 'Nexus.Core | Version 3.5.1'
 local title = 'Nexus.Core | v%s | fps %s | ping %s'
 
 -- Create window using the library
@@ -829,6 +829,10 @@ local function updateESP()
             end
         end
     end
+end
+
+while wait(1) do
+    updateESP()
 end
 
 ESPS:AddToggle('Enable ESP', {
