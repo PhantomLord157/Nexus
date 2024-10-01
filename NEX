@@ -2,7 +2,7 @@
 loadstring(game:HttpGet(("https://raw.githubusercontent.com/PhantomLord157/Nexus/main/betterUIlibrary"), true))()
 
 -- Define Titles
-local title2 = 'Nexus.Core | Version 3.0.0'
+local title2 = 'Nexus.Core | Version 3.5.0'
 local title = 'Nexus.Core | v%s | fps %s | ping %s'
 
 -- Create window using the library
@@ -73,6 +73,8 @@ local Movment = MMainR:AddTab('Movment')
 local GMainL = Tabs.Games:AddLeftTabbox()
 local GMainR = Tabs.Games:AddRightTabbox()
 local PD = GMainL:AddTab('Project Delta')
+local BR = GMainL:AddTab("Blackout")
+local BR2 = GMainR:AddTab("Blackout")
 
 local UMainR = Tabs.UISettings:AddRightTabbox()
 local UMainL = Tabs.UISettings:AddLeftTabbox()
@@ -228,6 +230,17 @@ Aimbot:AddToggle('Aim Lock', {
     Callback = function(state)
         AimbotEnabled = state
     end
+}):AddKeyPicker('aimbind', {
+    Default = 'None',
+    SyncToggleState = true,
+
+    Mode = 'Toggle',
+
+    Text = 'BIND',
+    NoUI = false,
+
+    Callback = function(Value)
+    end,
 })
 
 aimbot:AddToggle('Circle Visibility', {
@@ -296,6 +309,46 @@ end)
 aimbot:AddButton('Sensitivity 0', function()
     Sensitivity = 0
 end)
+
+Aimbot:AddToggle('Exclude JP', {
+    Text = 'Exclude JP',
+    Default = false,
+    Callback = function(state)
+        ExcludeJP = state
+    end
+})
+
+Aimbot:AddToggle('Exclude cogworks', {
+    Text = 'Exclude cogworks',
+    Default = false,
+    Callback = function(state)
+        ExcludeCogworks = state
+    end
+})
+
+Aimbot:AddToggle('Exclude PhantomLord157', {
+    Text = 'Exclude PhantomLord157',
+    Default = false,
+    Callback = function(state)
+        ExcludePhantomLord157 = state
+    end
+})
+
+Aimbot:AddToggle('Exclude Venster', {
+    Text = 'Exclude Venster',
+    Default = false,
+    Callback = function(state)
+        ExcludeVenster = state
+    end
+})
+
+Aimbot:AddToggle('Exclude Monke', {
+    Text = 'Exclude Monke',
+    Default = false,
+    Callback = function(state)
+        ExcludeMonke = state
+    end
+})
 
 Aimbot:AddToggle('Wall Check', {
     Text = 'Wall Check',
@@ -447,6 +500,8 @@ Crosshair:AddSlider('Crosshair Thickness (Not Working)', {
     end
 })
 
+--[[
+
 PD:AddButton('Meme Sky', function()
     local newSky = Instance.new("Sky")
     newSky.Name = "MemeSky"
@@ -480,6 +535,8 @@ PD:AddButton("Remove Grass", function()
     grass.Decoration = false
 end)
 
+]]--
+
 Movment:AddSlider('Walk Speed', {
     Text = 'Walk Speed',
     Default = 20,
@@ -510,8 +567,10 @@ Misc:AddButton('Inf Yeild', function()
     loadstring(game:HttpGet(("https://raw.githubusercontent.com/PhantomLord157/ProjectBullShit/main/Inf%20Yeild"),true))()
 end)
 
-Misc:AddButton('Dark Dex (Broken)', function()
-    loadstring(game:HttpGet(("https://raw.githubusercontent.com/PhantomLord157/ProjectBullShit/main/DarkDex"),true))()
+Misc:AddButton('Dark Dex', function()
+    --Dark Dex
+if game:GetService'CoreGui':FindFirstChild'Dex'then game:GetService'CoreGui'.Dex:Destroy()end;math.randomseed(tick())local a={}for b=48,57 do table.insert(a,string.char(b))end;for b=65,90 do table.insert(a,string.char(b))end;for b=97,122 do table.insert(a,string.char(b))end;function RandomCharacters(c)if c>0 then return RandomCharacters(c-1)..a[math.random(1,#a)]else return''end end;local d=game:GetObjects('rbxassetid://3567096419')[1]d.Name=RandomCharacters(math.random(5,20))d.Parent=game:GetService('CoreGui')local function e(f,g)local function h(i,j)local k={}local l={script=j}local m={}m.__index=function(n,o)if l[o]==nil then return getfenv()[o]else return l[o]end end;m.__newindex=function(n,o,p)if l[o]==nil then getfenv()[o]=p else l[o]=p end end;setmetatable(k,m)setfenv(i,k)return i end;local function q(j)if j.ClassName=='Script'or j.ClassName=='LocalScript'then spawn(function()h(loadstring(j.Source,'='..j:GetFullName()),j)()end)end;for b,r in pairs(j:GetChildren())do q(r)end end;q(f)end;e(d)
+
 end)
 
 -- Add toggle for the watermark visibility
@@ -649,543 +708,232 @@ fov:AddButton('Expand FOV', function()
     end)
 end)
 
-local chamsEnabled = true
-local fillColor = Color3.fromRGB(255, 255, 255)
-local outlineColor = Color3.fromRGB(255, 255, 255)
-local teammateFillColor = Color3.fromRGB(255, 255, 255)
-local teammateOutlineColor = Color3.fromRGB(255, 255, 255)
+local espEnabled = false
+local showName = true
+local showHealth = true
+local showDistance = true
+local chamsEnabled = false
+local labelOffset = Vector3.new(0, 3, 0)
+local distanceType = 'Feet' -- Default distance type
 
-local localPlayer = game.Players.LocalPlayer
-
--- Function to determine if a player is a teammate
-local function isTeammate(player)
-    return player.Team == localPlayer.Team
+local function calculateDistance(player)
+    local localPlayer = game.Players.LocalPlayer
+    if player.Character and localPlayer.Character then
+        return (player.Character.HumanoidRootPart.Position - localPlayer.Character.HumanoidRootPart.Position).magnitude
+    end
+    return 0
 end
 
--- Function to manage chams for a character
-local function manageChams(character, player, shouldRemove)
-    if character and character ~= localPlayer.Character then
-        local highlight = character:FindFirstChild("Highlight")
-        
-        if shouldRemove then
-            if highlight then
-                highlight:Destroy()
-                print("Chams removed from " .. character.Name)
-            end
-        else
-            if not highlight then
-                local newHighlight = Instance.new("Highlight")
-                newHighlight.Name = "Highlight"
-                newHighlight.Adornee = character
-                newHighlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-
-                if isTeammate(player) then
-                    newHighlight.FillColor = teammateFillColor
-                    newHighlight.OutlineColor = teammateOutlineColor
-                else
-                    newHighlight.FillColor = fillColor
-                    newHighlight.OutlineColor = outlineColor
-                end
-
-                newHighlight.Parent = character
-                print("Chams added to " .. character.Name)
-            end
-        end
-    end
-end
-
--- Handle when a player's character is added or respawned
-local function onCharacterAdded(player)
-    local character = player.Character or player.CharacterAdded:Wait()
-
-    character:WaitForChild("Humanoid")
-    character:WaitForChild("HumanoidRootPart")
-
-    manageChams(character, player, false)
-
-    -- Remove chams on death
-    character.Humanoid.Died:Connect(function()
-        manageChams(character, player, true)
-    end)
-end
-
--- Handle when a player is added to the game
-local function onPlayerAdded(player)
-    if player ~= localPlayer then
-        player.CharacterAdded:Connect(function()
-            onCharacterAdded(player)
-        end)
-
-        -- Apply chams immediately if the player already has a character
-        if player.Character then
-            onCharacterAdded(player)
-        end
-    end
-end
-
--- Toggle chams for all players based on the toggle state
-local function toggleChams()
-    for _, player in pairs(game.Players:GetPlayers()) do
-        if player.Character and player ~= localPlayer then
-            manageChams(player.Character, player, not chamsEnabled)
-        end
-    end
-end
-
--- Connect PlayerAdded events
-game.Players.PlayerAdded:Connect(onPlayerAdded)
-for _, player in pairs(game.Players:GetPlayers()) do
-    onPlayerAdded(player)
-end
-
-ESPS:AddToggle('chams', {
-    Text = 'Chams',
-    Default = chamsEnabled,
-    Callback = function(value)
-        chamsEnabled = value
-        toggleChams()
-    end
-}):AddColorPicker('fill color', {
-    Default = fillColor,
-    Title = 'Fill Color',
-    Callback = function(Value)
-        fillColor = Value
-        toggleChams()
-    end
-}):AddColorPicker('outline color', {
-    Default = outlineColor,
-    Title = 'Outline Color',
-    Callback = function(Value)
-        outlineColor = Value
-        toggleChams()
-    end
-}):AddColorPicker('teammate fill color', {
-    Default = teammateFillColor,
-    Title = 'Teammate Fill Color',
-    Callback = function(Value)
-        teammateFillColor = Value
-        toggleChams()
-    end
-}):AddColorPicker('teammate outline color', {
-    Default = teammateOutlineColor,
-    Title = 'Teammate Outline Color',
-    Callback = function(Value)
-        teammateOutlineColor = Value
-        toggleChams()
-    end
-})
-
-local labelsEnabled = true
-local labelColor = Color3.fromRGB(255, 255, 255) -- Default color for enemy labels
-local teammateLabelColor = Color3.fromRGB(255, 255, 255) -- Default color for teammate labels
-local labelOffset = Vector3.new(0, 3, 0) -- Adjust this value to change the vertical offset
-local textSize = 10 -- Default text size
-
-local localPlayer = game.Players.LocalPlayer
-
--- Function to determine if a player is a teammate
-local function isTeammate(player)
-    return player.Team == localPlayer.Team
-end
-
--- Function to manage name labels for a character
-local function manageNameLabel(character, player, shouldRemove)
-    if character and character ~= localPlayer.Character then
-        local label = character:FindFirstChild("NameLabel")
-        
-        if shouldRemove then
-            if label then
-                label:Destroy()
-                print("Label removed from " .. character.Name)
-            end
-        else
-            if not label then
-                local newLabel = Instance.new("BillboardGui")
-                newLabel.Name = "NameLabel"
-                newLabel.Adornee = character:WaitForChild("Head")
-                newLabel.Size = UDim2.new(2, 0, 1, 0)
-                newLabel.AlwaysOnTop = true
-                newLabel.StudsOffset = labelOffset -- Set the vertical offset
-                
-                local textLabel = Instance.new("TextLabel")
-                textLabel.Text = player.Name
-                textLabel.Size = UDim2.new(1, 0, 1, 0)
-                textLabel.BackgroundTransparency = 1
-                textLabel.TextColor3 = isTeammate(player) and teammateLabelColor or labelColor
-                textLabel.TextScaled = false -- Disable TextScaled
-                textLabel.TextSize = textSize -- Set the initial text size
-                
-                textLabel.Parent = newLabel
-                newLabel.Parent = character
-
-                print("Label added to " .. character.Name)
-            else
-                -- If label exists, update the text size
-                local textLabel = label:FindFirstChild("TextLabel")
-                if textLabel then
-                    textLabel.TextSize = textSize
-                end
-            end
-        end
-    end
-end
-
--- Handle when a player's character is added or respawned
-local function onCharacterAdded(player)
-    local character = player.Character or player.CharacterAdded:Wait()
-
-    character:WaitForChild("Humanoid")
-    character:WaitForChild("HumanoidRootPart")
-
-    manageNameLabel(character, player, false)
-
-    -- Remove label on death
-    character.Humanoid.Died:Connect(function()
-        manageNameLabel(character, player, true)
-    end)
-end
-
--- Handle when a player is added to the game
-local function onPlayerAdded(player)
-    if player ~= localPlayer then
-        player.CharacterAdded:Connect(function()
-            onCharacterAdded(player)
-        end)
-
-        -- Apply name label immediately if the player already has a character
-        if player.Character then
-            onCharacterAdded(player)
-        end
-    end
-end
-
--- Toggle name labels for all players based on the toggle state
-local function toggleNameLabels()
-    for _, player in pairs(game.Players:GetPlayers()) do
-        if player.Character and player ~= localPlayer then
-            manageNameLabel(player.Character, player, not labelsEnabled)
-        end
-    end
-end
-
--- Connect PlayerAdded events
-game.Players.PlayerAdded:Connect(onPlayerAdded)
-for _, player in pairs(game.Players:GetPlayers()) do
-    onPlayerAdded(player)
-end
-
--- Adding UI elements for ESP
-ESPS:AddToggle('name labels', {
-    Text = 'Name Labels',
-    Default = labelsEnabled,
-    Callback = function(value)
-        labelsEnabled = value
-        toggleNameLabels()
-    end
-}):AddColorPicker('label color', {
-    Default = labelColor,
-    Title = 'Enemy Label Color',
-    Callback = function(value)
-        labelColor = value
-        toggleNameLabels()
-    end
-}):AddColorPicker('teammate label color', {
-    Default = teammateLabelColor,
-    Title = 'Teammate Label Color',
-    Callback = function(value)
-        teammateLabelColor = value
-        toggleNameLabels()
-    end
-})
-
---[[
-ESPS:AddSlider('Text Size', {
-    Text = 'Text Size',
-    Default = 50, -- Initial text size
-    Min = 10,
-    Max = 100,
-    Rounding = 0, -- No rounding
-    Callback = function(value)
-        textSize = value -- Update the textSize variable
-        toggleNameLabels() -- Refresh the name labels to apply the new text size
-    end
-})
-
-]]--
-
-local labelsEnabled = true
-local labelColor = Color3.fromRGB(255, 0, 0) -- Default red color for enemy health labels
-local teammateLabelColor = Color3.fromRGB(255, 0, 0) -- Default red color for teammate health labels
-local labelOffset = Vector3.new(0, 0.5, 0) -- Lowered slightly below the chest
-local textSize = 10 -- Default text size
-
-local localPlayer = game.Players.LocalPlayer
-
--- Function to determine if a player is a teammate
-local function isTeammate(player)
-    return player.Team == localPlayer.Team
-end
-
--- Function to manage health labels for a character
-local function manageHealthLabel(character, player, shouldRemove)
-    if character and character ~= localPlayer.Character then
-        local label = character:FindFirstChild("HealthLabel")
-        
-        if shouldRemove then
-            if label then
-                label:Destroy()
-                print("Health label removed from " .. character.Name)
-            end
-        else
-            if not label then
-                local newLabel = Instance.new("BillboardGui")
-                newLabel.Name = "HealthLabel"
-                newLabel.Adornee = character:WaitForChild("HumanoidRootPart")
-                newLabel.Size = UDim2.new(2, 0, 1, 0)
-                newLabel.AlwaysOnTop = true
-                newLabel.StudsOffset = labelOffset -- Set slightly lower than chest
-                
-                local textLabel = Instance.new("TextLabel")
-                textLabel.Text = tostring(character:WaitForChild("Humanoid").Health) -- Set the health value
-                textLabel.Size = UDim2.new(1, 0, 1, 0)
-                textLabel.BackgroundTransparency = 1
-                textLabel.TextColor3 = isTeammate(player) and teammateLabelColor or labelColor
-                textLabel.TextScaled = false -- Disable TextScaled
-                textLabel.TextSize = textSize -- Set the initial text size
-                
-                textLabel.Parent = newLabel
-                newLabel.Parent = character
-
-                -- Update health label when health changes
-                character.Humanoid.HealthChanged:Connect(function(health)
-                    textLabel.Text = tostring(health)
-                end)
-
-                print("Health label added to " .. character.Name)
-            else
-                -- If label exists, update the text size
-                local textLabel = label:FindFirstChild("TextLabel")
-                if textLabel then
-                    textLabel.TextSize = textSize
-                end
-            end
-        end
-    end
-end
-
--- Handle when a player's character is added or respawned
-local function onCharacterAdded(player)
-    local character = player.Character or player.CharacterAdded:Wait()
-
-    character:WaitForChild("Humanoid")
-    character:WaitForChild("HumanoidRootPart")
-
-    manageHealthLabel(character, player, false)
-
-    -- Remove label on death
-    character.Humanoid.Died:Connect(function()
-        manageHealthLabel(character, player, true)
-    end)
-end
-
--- Handle when a player is added to the game
-local function onPlayerAdded(player)
-    if player ~= localPlayer then
-        player.CharacterAdded:Connect(function()
-            onCharacterAdded(player)
-        end)
-
-        -- Apply health label immediately if the player already has a character
-        if player.Character then
-            onCharacterAdded(player)
-        end
-    end
-end
-
--- Toggle health labels for all players based on the toggle state
-local function toggleHealthLabels()
-    for _, player in pairs(game.Players:GetPlayers()) do
-        if player.Character and player ~= localPlayer then
-            manageHealthLabel(player.Character, player, not labelsEnabled)
-        end
-    end
-end
-
--- Connect PlayerAdded events
-game.Players.PlayerAdded:Connect(onPlayerAdded)
-for _, player in pairs(game.Players:GetPlayers()) do
-    onPlayerAdded(player)
-end
-
--- Adding UI elements for ESP
-ESPS:AddToggle('health labels', {
-    Text = 'Health Labels',
-    Default = labelsEnabled,
-    Callback = function(value)
-        labelsEnabled = value
-        toggleHealthLabels()
-    end
-}):AddColorPicker('label color', {
-    Default = labelColor,
-    Title = 'Enemy Health Label Color',
-    Callback = function(value)
-        labelColor = value
-        toggleHealthLabels()
-    end
-}):AddColorPicker('teammate label color', {
-    Default = teammateLabelColor,
-    Title = 'Teammate Health Label Color',
-    Callback = function(value)
-        teammateLabelColor = value
-        toggleHealthLabels()
-    end
-})
-
-local labelsEnabled = true
-local labelColor = Color3.fromRGB(255, 255, 255) -- Default white color for enemy distance labels
-local teammateLabelColor = Color3.fromRGB(255, 255, 255) -- Default white color for teammate distance labels
-local labelOffset = Vector3.new(0, -1, 0) -- Position just below the chest
-local textSize = 10 -- Default text size
-local distanceType = "Feet" -- Default distance type
-
-local localPlayer = game.Players.LocalPlayer
-
--- Function to determine if a player is a teammate
-local function isTeammate(player)
-    return player.Team == localPlayer.Team
-end
-
+-- Function to convert distance based on selected type
 local function convertDistance(distanceInStuds)
-    if distanceType == "Feet" then
+    if distanceType == 'Feet' then
         return distanceInStuds * 0.28 * 3.28084 -- Convert to feet
-    elseif distanceType == "Meters" then
-        return distanceInStuds * 0.28 -- Convert to meters
-    elseif distanceType == "Yards" then
+    elseif distanceType == 'Meters' then
+        return distanceInStuds * 0.28 -- Already in meters
+    elseif distanceType == 'Yards' then
         return distanceInStuds * 0.28 * 1.09361 -- Convert to yards
-    elseif distanceType == "Inches" then
+    elseif distanceType == 'Inches' then
         return distanceInStuds * 0.28 * 39.3701 -- Convert to inches
-    elseif distanceType == "Centimeters" then
+    elseif distanceType == 'Centimeters' then
         return distanceInStuds * 0.28 * 100 -- Convert to centimeters
     end
+    return distanceInStuds -- Default to studs if not recognized
 end
 
--- Function to manage distance labels for a character
-local function manageDistanceLabel(character, player, shouldRemove)
-    if character and character ~= localPlayer.Character then
-        local label = character:FindFirstChild("DistanceLabel")
+local function createLabel(player)
+    local label = Instance.new("BillboardGui")
+    label.Size = UDim2.new(0, 200, 0, 50)
+    label.Adornee = player.Character:FindFirstChild("HumanoidRootPart")
+    label.Name = player.Name .. "Label"
+    label.Parent = player.Character
+    label.StudsOffset = labelOffset
+    label.AlwaysOnTop = true
 
-        if shouldRemove then
-            if label then
-                label:Destroy()
-                print("Distance label removed from " .. character.Name)
-            end
-        else
-            if not label then
-                local newLabel = Instance.new("BillboardGui")
-                newLabel.Name = "DistanceLabel"
-                newLabel.Adornee = character:WaitForChild("HumanoidRootPart")
-                newLabel.Size = UDim2.new(2, 0, 1, 0)
-                newLabel.AlwaysOnTop = true
-                newLabel.StudsOffset = labelOffset -- Set to slightly below the chest
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Size = UDim2.new(1, 0, 1, 0)
+    textLabel.BackgroundTransparency = 1
+    textLabel.TextColor3 = Color3.new(1, 1, 1)
+    textLabel.TextStrokeTransparency = 0 
+    textLabel.Parent = label
 
-                local textLabel = Instance.new("TextLabel")
-                local distanceInStuds = (localPlayer.Character.HumanoidRootPart.Position - character.HumanoidRootPart.Position).magnitude
-                textLabel.Text = string.format("%.1f %s", convertDistance(distanceInStuds), distanceType) -- Initial distance label
-                textLabel.Size = UDim2.new(1, 0, 1, 0)
-                textLabel.BackgroundTransparency = 1
-                textLabel.TextColor3 = isTeammate(player) and teammateLabelColor or labelColor
-                textLabel.TextScaled = false -- Disable TextScaled
-                textLabel.TextSize = textSize -- Set the initial text size
+    return label, textLabel
+end
 
-                textLabel.Parent = newLabel
-                newLabel.Parent = character
+local function createChams(player)
+    if player.Character then
+        local highlight = Instance.new("Highlight")
+        highlight.Name = player.Name .. "Highlight"
+        highlight.Adornee = player.Character
+        highlight.FillColor = Color3.new(0, 0, 0)
+        highlight.OutlineTransparency = 0
+        highlight.Parent = player.Character
+        return highlight
+    end
+end
 
-                -- Update distance label when character position changes
-                game:GetService("RunService").RenderStepped:Connect(function()
-                    if character and character:FindFirstChild("HumanoidRootPart") then
-                        local distance = (localPlayer.Character.HumanoidRootPart.Position - character.HumanoidRootPart.Position).magnitude
-                        textLabel.Text = string.format("%.1f %s", convertDistance(distance), distanceType)
+local function updateESP()
+    for _, player in ipairs(game.Players:GetPlayers()) do
+        if player ~= game.Players.LocalPlayer and player.Character then
+            local existingLabel = player.Character:FindFirstChild(player.Name .. "Label")
+            local existingHighlight = player.Character:FindFirstChild(player.Name .. "Highlight")
+
+            if espEnabled then
+                if not existingLabel then
+                    local label, textLabel = createLabel(player)
+
+                    local function updateText()
+                        local displayText = ""
+                        if showName then
+                            displayText = player.Name
+                        end
+                        if showHealth then
+                            local health = player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health or 0
+                            health = math.floor(health * 10) / 10
+                            displayText = displayText .. (displayText ~= "" and " | " or "") .. "Health: " .. health
+                        end
+                        if showDistance then
+                            local distance = calculateDistance(player)
+                            displayText = displayText .. (displayText ~= "" and " | " or "") .. "Distance: " .. string.format("%.1f %s", convertDistance(distance), distanceType)
+                        end
+                        textLabel.Text = displayText
                     end
-                end)
 
-                print("Distance label added to " .. character.Name)
+                    updateText()
+
+                    player.CharacterAdded:Connect(function(newCharacter)
+                        label.Adornee = newCharacter:WaitForChild("HumanoidRootPart")
+                    end)
+
+                    player:GetPropertyChangedSignal("Character"):Connect(function()
+                        if player.Character then
+                            label.Adornee = player.Character:FindFirstChild("HumanoidRootPart")
+                            updateText()
+                        end
+                    end)
+                    game:GetService("RunService").RenderStepped:Connect(updateText)
+                end
             else
-                -- If label exists, update the text size
-                local textLabel = label:FindFirstChild("TextLabel")
-                if textLabel then
-                    textLabel.TextSize = textSize
+                if existingLabel then
+                    existingLabel:Destroy()
+                end
+            end
+
+            if chamsEnabled then
+                if not existingHighlight then
+                    createChams(player)
+                end
+            else
+                if existingHighlight then
+                    existingHighlight:Destroy()
                 end
             end
         end
     end
 end
 
--- Handle when a player's character is added or respawned
-local function onCharacterAdded(player)
-    local character = player.Character or player.CharacterAdded:Wait()
-
-    character:WaitForChild("Humanoid")
-    character:WaitForChild("HumanoidRootPart")
-
-    manageDistanceLabel(character, player, false)
-
-    -- Remove label on death
-    character.Humanoid.Died:Connect(function()
-        manageDistanceLabel(character, player, true)
-    end)
-end
-
--- Handle when a player is added to the game
-local function onPlayerAdded(player)
-    if player ~= localPlayer then
-        player.CharacterAdded:Connect(function()
-            onCharacterAdded(player)
-        end)
-
-        -- Apply distance label immediately if the player already has a character
-        if player.Character then
-            onCharacterAdded(player)
+ESPS:AddToggle('Enable ESP', {
+    Text = 'ESP',
+    Default = false,
+    Callback = function(state)
+        espEnabled = state
+        updateESP()
+    end
+}):AddKeyPicker('espbind', {
+    Default = 'None',
+    SyncToggleState = true,
+    Mode = 'Toggle',
+    Text = 'ESP Keybind',
+    NoUI = false,
+    Callback = function(Value)
+        if Value and espEnabled then
+            espEnabled = not espEnabled
+            updateESP()
         end
-    end
-end
+    end,
+})
 
--- Toggle distance labels for all players based on the toggle state
-local function toggleDistanceLabels()
-    for _, player in pairs(game.Players:GetPlayers()) do
-        if player.Character and player ~= localPlayer then
-            manageDistanceLabel(player.Character, player, not labelsEnabled)
+ESPS:AddToggle('Show Name', {
+    Text = 'Show Name',
+    Default = true,
+    Callback = function(state)
+        showName = state
+        updateESP()
+    end
+}):AddKeyPicker('showNameBind', {
+    Default = 'None',
+    SyncToggleState = true,
+    Mode = 'Toggle',
+    Text = 'Show Name Keybind',
+    NoUI = false,
+    Callback = function(Value)
+        if Value then
+            showName = not showName
+            updateESP()
         end
-    end
-end
+    end,
+})
 
--- Connect PlayerAdded events
-game.Players.PlayerAdded:Connect(onPlayerAdded)
-for _, player in pairs(game.Players:GetPlayers()) do
-    onPlayerAdded(player)
-end
+ESPS:AddToggle('Show Health', {
+    Text = 'Show Health',
+    Default = true,
+    Callback = function(state)
+        showHealth = state
+        updateESP()
+    end
+}):AddKeyPicker('showHealthBind', {
+    Default = 'None',
+    SyncToggleState = true,
+    Mode = 'Toggle',
+    Text = 'Show Health Keybind',
+    NoUI = false,
+    Callback = function(Value)
+        if Value then
+            showHealth = not showHealth
+            updateESP()
+        end
+    end,
+})
 
--- Adding UI elements for ESP
-ESPS:AddToggle('Distance Labels', {
-    Text = 'Distance Labels',
-    Default = labelsEnabled,
-    Callback = function(value)
-        labelsEnabled = value
-        toggleDistanceLabels()
+ESPS:AddToggle('Show Distance', {
+    Text = 'Show Distance',
+    Default = true,
+    Callback = function(state)
+        showDistance = state
+        updateESP()
     end
-}):AddColorPicker('Label Color', {
-    Default = labelColor,
-    Title = 'Enemy Distance Label Color',
-    Callback = function(value)
-        labelColor = value
-        toggleDistanceLabels()
+}):AddKeyPicker('showDistanceBind', {
+    Default = 'None',
+    SyncToggleState = true,
+    Mode = 'Toggle',
+    Text = 'Show Distance Keybind',
+    NoUI = false,
+    Callback = function(Value)
+        if Value then
+            showDistance = not showDistance
+            updateESP()
+        end
+    end,
+})
+
+ESPS:AddToggle('Enable Chams', {
+    Text = 'Chams',
+    Default = false,
+    Callback = function(state)
+        chamsEnabled = state
+        updateESP()
     end
-}):AddColorPicker('Teammate Label Color', {
-    Default = teammateLabelColor,
-    Title = 'Teammate Distance Label Color',
-    Callback = function(value)
-        teammateLabelColor = value
-        toggleDistanceLabels()
-    end
+}):AddKeyPicker('chamsBind', {
+    Default = 'None',
+    SyncToggleState = true,
+    Mode = 'Toggle',
+    Text = 'Chams Keybind',
+    NoUI = false,
+    Callback = function(Value)
+        if Value then
+            chamsEnabled = not chamsEnabled
+            updateESP()
+        end
+    end,
 })
 
 ESPS:AddDropdown('Distance Type', {
@@ -1200,13 +948,13 @@ ESPS:AddDropdown('Distance Type', {
         distanceType = value
         -- Update existing labels with the new distance type
         for _, player in pairs(game.Players:GetPlayers()) do
-            if player.Character and player ~= localPlayer then
+            if player.Character and player ~= game.Players.LocalPlayer then
                 local character = player.Character
-                local distanceLabel = character:FindFirstChild("DistanceLabel")
+                local distanceLabel = character:FindFirstChild(player.Name .. "Label")
                 if distanceLabel then
                     local textLabel = distanceLabel:FindFirstChild("TextLabel")
                     if textLabel then
-                        local distanceInStuds = (localPlayer.Character.HumanoidRootPart.Position - character.HumanoidRootPart.Position).magnitude
+                        local distanceInStuds = calculateDistance(player)
                         textLabel.Text = string.format("%.1f %s", convertDistance(distanceInStuds), distanceType)
                     end
                 end
@@ -1214,3 +962,7 @@ ESPS:AddDropdown('Distance Type', {
         end
     end
 })
+
+ESPS:AddButton('Update ESP', function()
+    updateESP()
+end)
