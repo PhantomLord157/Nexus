@@ -833,7 +833,7 @@ local function updateESP()
     end
 end
 
-while wait(1) do
+while wait(0.1) do
     updateESP()
 end
 
