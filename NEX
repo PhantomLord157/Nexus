@@ -2,7 +2,7 @@
 loadstring(game:HttpGet(("https://raw.githubusercontent.com/PhantomLord157/Nexus/main/betterUIlibrary"), true))()
 
 -- Define Titles
-local title2 = 'Nexus.Core | Version 3.5.1'
+local title2 = 'Nexus.Core | Version 3.5.2'
 local title = 'Nexus.Core | v%s | fps %s | ping %s'
 
 -- Create window using the library
@@ -741,22 +741,24 @@ local function convertDistance(distanceInStuds)
 end
 
 local function createLabel(player)
-    local label = Instance.new("BillboardGui")
-    label.Size = UDim2.new(0, 200, 0, 50)
-    label.Adornee = player.Character:FindFirstChild("HumanoidRootPart")
-    label.Name = player.Name .. "Label"
-    label.Parent = player.Character
-    label.StudsOffset = labelOffset
-    label.AlwaysOnTop = true
+    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        local label = Instance.new("BillboardGui")
+        label.Size = UDim2.new(0, 200, 0, 50)
+        label.Adornee = player.Character:FindFirstChild("HumanoidRootPart")
+        label.Name = player.Name .. "Label"
+        label.Parent = player.Character
+        label.StudsOffset = labelOffset
+        label.AlwaysOnTop = true
 
-    local textLabel = Instance.new("TextLabel")
-    textLabel.Size = UDim2.new(1, 0, 1, 0)
-    textLabel.BackgroundTransparency = 1
-    textLabel.TextColor3 = Color3.new(1, 1, 1)
-    textLabel.TextStrokeTransparency = 0 
-    textLabel.Parent = label
+        local textLabel = Instance.new("TextLabel")
+        textLabel.Size = UDim2.new(1, 0, 1, 0)
+        textLabel.BackgroundTransparency = 1
+        textLabel.TextColor3 = Color3.new(1, 1, 1)
+        textLabel.TextStrokeTransparency = 0 
+        textLabel.Parent = label
 
-    return label, textLabel
+        return label, textLabel
+    end
 end
 
 local function createChams(player)
