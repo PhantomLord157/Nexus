@@ -1,0 +1,1067 @@
+-- Load the UI library
+loadstring(game:HttpGet(("https://raw.githubusercontent.com/PhantomLord157/Nexus/main/betterUIlibrary"), true))()
+
+-- Define Titles
+local title2 = 'Nexus.Core | Version 3.0.0'
+local title = 'Nexus.Core | v%s | fps %s | ping %s'
+
+-- Create window using the library
+local Window = Library:CreateWindow({
+    Title = title2,
+    Center = true,
+    AutoShow = true,
+    TabPadding = 8
+})
+
+-- Send notification
+game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title = "Nexus.Core Private",
+    Text = "Nexus Private Loaded",
+    Duration = 5
+})
+
+-- Tabs
+local Tabs = {
+    Credits = Window:AddTab('Credits'),
+    Visuals = Window:AddTab('Visuals'),
+    Aimbot = Window:AddTab('Aimbot'),
+    Misc = Window:AddTab('Misc'),
+    UISettings = Window:AddTab('Settings'),
+}
+
+-- Create tab sections
+local CMainL = Tabs.Credits:AddLeftTabbox()
+local CMainR = Tabs.Credits:AddRightTabbox()
+local CreditInfo = CMainL:AddTab('Credits')
+local info = CMainR:AddTab('Information')
+
+-- Credits Info
+CreditInfo:AddLabel('PhantomLord157')
+CreditInfo:AddLabel('TheChimcomMan')
+CreditInfo:AddLabel('Cogworks')
+CreditInfo:AddLabel('Jpthmanjr454')
+CreditInfo:AddLabel('MɏŠŦȋʕ シ')
+info:AddLabel('https://discord.gg/PNXyRxj5JU')
+info:AddLabel('Made For Blackout Revival')
+
+local visl = Tabs.Visuals:AddLeftTabbox()
+local visr = Tabs.Visuals:AddRightTabbox()
+local ESPS = visl:AddTab("Player ESP")
+local aesp = visl:AddTab("NPC ESP")
+local cesp = visr:AddTab("Box ESP")
+local World = visr:AddTab("World")
+local Crosshair = visr:AddTab("Crosshair")
+
+local aiml = Tabs.Aimbot:AddLeftTabbox("NPC")
+local aimr = Tabs.Aimbot:AddRightTabbox("Player")
+local ai = aiml:AddTab("Toggles")
+local ai2 = aiml:AddTab("Sliders")
+local ply = aimr:AddTab("Toggles")
+local ply2 = aimr:AddTab("Sliders")
+
+local left = Tabs.Misc:AddLeftTabbox()
+local ds = left:AddTab('Dev Stuff')
+
+local player = game:GetService("Players")
+local lp = player.LocalPlayer
+
+ds:AddButton('Print Player Coordinates', function()
+    -- Wait for the character to load if it's not ready
+    local character = lp.Character or lp.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+    -- Fetch the latest position
+    local coords = humanoidRootPart.Position
+    print(coords)
+end)
+
+local set = Tabs.UISettings:AddLeftTabbox()
+local ui = set:AddTab("UI")
+
+-- Services
+local Camera = game.Workspace.CurrentCamera
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+-- Aimbot settings
+local aAimbotEnabled = false
+local sSensitivity = 0.1 -- Reduced sensitivity for faster snapping
+
+-- FOV settings
+local cCircleColor = Color3.fromRGB(255, 255, 255)
+local cCircleTransparency = 0.7
+local cCircleRadius = 80
+local cCircleVisible = false
+local cCircleThickness = 3
+
+-- Wall check toggle
+local WallCheckEnabled = false
+
+-- FOV Circle
+local FOVCircle = Drawing.new("Circle")
+FOVCircle.Filled = false
+FOVCircle.Visible = cCircleVisible
+FOVCircle.Transparency = cCircleTransparency
+FOVCircle.Thickness = cCircleThickness
+
+-- Function to check if a part is in front of the camera
+local function IsInFrontOfCamera(part)
+    local cameraCFrame = Camera.CFrame
+    local cameraLookVector = cameraCFrame.LookVector
+    return cameraLookVector:Dot((part.Position - cameraCFrame.Position).Unit) > 0 -- Ensure it's in front
+end
+
+-- Function to check if an NPC is in FOV
+local function IsNPCInFOV(head)
+    local screenPoint = Camera:WorldToScreenPoint(head.Position)
+    local centerScreen = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+    return (centerScreen - Vector2.new(screenPoint.X, screenPoint.Y)).Magnitude <= cCircleRadius
+end
+
+-- Main loop for constantly finding NPCs in "Location"
+local Target = nil
+
+-- Function to get the closest NPC to aim at
+local function GetClosestNPC()
+    local ClosestDistance = math.huge
+    Target = nil -- Reset target
+
+    -- Check NPCs in Workspace.NPCs.Hostile
+    for _, npc in pairs(game.Workspace.NPCs.Hostile:GetChildren()) do
+        local head = npc:FindFirstChild("Head")
+        if head and IsInFrontOfCamera(head) and IsNPCInFOV(head) then
+            local distance = (head.Position - Camera.CFrame.Position).Magnitude
+            if distance < ClosestDistance then
+                if WallCheckEnabled then
+                    local ray = Ray.new(Camera.CFrame.Position, head.Position - Camera.CFrame.Position)
+                    local hitPart, hitPosition = workspace:FindPartOnRay(ray, nil, true)
+                    if not (hitPart and hitPart.Parent == npc) then
+                        ClosestDistance = distance
+                        Target = npc
+                    end
+                else
+                    ClosestDistance = distance
+                    Target = npc
+                end
+            end
+        end
+    end
+
+    -- Continuously search for NPCs in "ActiveTasks" > "Location" models
+    for _, location in pairs(game.Workspace.ActiveTasks:GetChildren()) do
+        if location:IsA("Model") and location.Name == "Location" then -- Correctly identify "Location" as a Model
+            for _, npc in pairs(location:GetChildren()) do
+                local head = npc:FindFirstChild("Head") -- Check for the "Head" part
+                if head and IsInFrontOfCamera(head) and IsNPCInFOV(head) then
+                    local distance = (head.Position - Camera.CFrame.Position).Magnitude
+                    if distance < ClosestDistance then
+                        if WallCheckEnabled then
+                            local ray = Ray.new(Camera.CFrame.Position, head.Position - Camera.CFrame.Position)
+                            local hitPart, hitPosition = workspace:FindPartOnRay(ray, nil, true)
+                            if not (hitPart and hitPart.Parent == npc) then
+                                ClosestDistance = distance
+                                Target = npc
+                                print("Found Location NPC Head at:", head.Position) -- Debug print
+                            end
+                        else
+                            ClosestDistance = distance
+                            Target = npc
+                            print("Found Location NPC Head at:", head.Position) -- Debug print
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    return Target
+end
+
+-- Main loop to handle aiming and rendering the FOV circle
+RunService.RenderStepped:Connect(function()
+    -- Update FOV circle
+    FOVCircle.Position = UserInputService:GetMouseLocation()
+    FOVCircle.Radius = cCircleRadius
+    FOVCircle.Color = cCircleColor
+    FOVCircle.Visible = aAimbotEnabled and cCircleVisible -- Toggle visibility based on aAimbotEnabled
+    FOVCircle.Transparency = cCircleTransparency
+    FOVCircle.Thickness = cCircleThickness
+
+    -- Aimbot functionality
+    if aAimbotEnabled and UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then -- Right click check
+        local targetNPC = GetClosestNPC() -- Continuously update target
+        if targetNPC then
+            local targetPart = targetNPC:FindFirstChild("Head") -- Specifically targeting the "Head"
+            if targetPart then
+                -- Calculate the direction to the target's head
+                local direction = (targetPart.Position - Camera.CFrame.Position).Unit
+                -- Set the camera to look at the target's head without moving the camera
+                Camera.CFrame = CFrame.new(Camera.CFrame.Position, Camera.CFrame.Position + direction)
+            end
+        end
+    end
+end)
+
+ai:AddLabel('NPC Toggles')
+ai2:AddLabel('NPC Sliders')
+
+-- Add Toggles and Sliders
+ai:AddToggle('Aim Lock', {
+    Text = 'Aim Lock',
+    Default = false,
+    Callback = function(state)
+        aAimbotEnabled = state
+    end
+}):AddKeyPicker('npcaimbind', {
+    Default = 'None',
+    SyncToggleState = true,
+
+    Mode = 'Toggle',
+
+    Text = 'BIND',
+    NoUI = false,
+
+    Callback = function(Value)
+    end,
+})
+
+ai2:AddToggle('Circle Visibility', {
+    Text = 'Circle Visibility',
+    Default = false,
+    Callback = function(state)
+        cCircleVisible = state
+    end
+}):AddColorPicker('Circle Color', {
+    Default = Color3.new(0, 0, 255),
+    Title = 'Circle Color',
+    Transparency = 0,
+
+    Callback = function(color)
+        cCircleColor = color
+    end
+})
+
+ai2:AddSlider('FOV Size', {
+    Text = 'FOV Size',
+    Default = 80,
+    Min = 10,
+    Max = 200,
+    Rounding = 0,
+    Callback = function(value)
+        cCircleRadius = value
+    end
+})
+
+ai2:AddSlider('Circle Transparency', {
+    Text = 'Circle Transparency',
+    Default = 0.5,
+    Min = 0.01,
+    Max = 1,
+    Rounding = 0,
+    Callback = function(value)
+        cCircleTransparency = value
+        FOVCircle.Transparency = value
+    end
+})
+
+ai2:AddSlider('Circle Thickness', {
+    Text = 'Circle Thickness',
+    Default = 1,
+    Min = 1,
+    Max = 10,
+    Rounding = 0,
+    Callback = function(value)
+        cCircleThickness = value
+        FOVCircle.Thickness = value
+    end
+})
+
+ai2:AddButton('Sensitivity 0.1', function()
+    sSensitivity = 0.1
+end)
+
+ai2:AddButton('Sensitivity 0', function()
+    sSensitivity = 0
+end)
+
+ai:AddToggle('Wall Check', {
+    Text = 'Wall Check',
+    Default = false,
+    Callback = function(state)
+        WallCheckEnabled = state
+    end
+})
+
+-- Services
+local Camera = game.Workspace.CurrentCamera
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+
+-- Aimbot settings
+local AimbotEnabled = false
+local TeamCheck = false
+local AimPart = "Head"
+local Sensitivity = 0.5 -- Adjusted for a smoother transition
+
+-- FOV settings
+local CircleSides = 12
+local CircleColor = Color3.fromRGB(255, 255, 255)
+local CircleTransparency = 0.7
+local CircleRadius = 80
+local CircleFilled = false
+local CircleVisible = false
+local CircleThickness = 3
+
+-- Wall check toggle
+local WallCheckEnabled = false
+
+-- Exclude player names
+local ExcludedPlayers = {
+    Jpthemanjr454 = true,
+    CarlosTames2 = true,
+    TheRealMaxHunter1234 = true,
+    J05B09 = true,
+    TheChimcowMan = true
+}
+
+-- FOV Circle
+local FOVCircle = Drawing.new("Circle")
+FOVCircle.Filled = CircleFilled
+FOVCircle.Visible = CircleVisible
+FOVCircle.Transparency = CircleTransparency
+FOVCircle.Thickness = CircleThickness
+
+-- Function to check if a part is in front of the camera
+local function IsInFrontOfCamera(part)
+    local cameraCFrame = Camera.CFrame
+    local cameraLookVector = cameraCFrame.LookVector
+    return cameraLookVector:Dot((part.Position - cameraCFrame.Position).Unit) > 0
+end
+
+-- Function to check if a player is in FOV
+local function IsPlayerInFOV(player)
+    local screenPoint = Camera:WorldToScreenPoint(player.Character.HumanoidRootPart.Position)
+    local centerScreen = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+    local distanceFromCenter = (centerScreen - Vector2.new(screenPoint.X, screenPoint.Y)).Magnitude
+    return distanceFromCenter <= CircleRadius
+end
+
+-- Function to get the closest player to aim at
+local function GetClosestPlayer()
+    local Target = nil
+    local ClosestDistance = math.huge
+
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= Players.LocalPlayer and (not TeamCheck or player.Team ~= Players.LocalPlayer.Team) then
+            -- Exclude players based on the ExcludedPlayers table
+            if ExcludedPlayers[player.Name] then
+                continue
+            end
+
+            local character = player.Character
+            if character then
+                local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+                if humanoidRootPart and IsInFrontOfCamera(humanoidRootPart) and IsPlayerInFOV(player) then
+                    if WallCheckEnabled then
+                        local ray = Ray.new(Camera.CFrame.Position, humanoidRootPart.Position - Camera.CFrame.Position)
+                        local hitPart, hitPosition = workspace:FindPartOnRay(ray)
+                        if hitPart and hitPart.Parent ~= character then
+                            continue -- Skip this player if a wall is blocking
+                        end
+                    end
+
+                    local distance = (humanoidRootPart.Position - Camera.CFrame.Position).Magnitude
+                    if distance < ClosestDistance then
+                        ClosestDistance = distance
+                        Target = player
+                    end
+                end
+            end
+        end
+    end
+
+    return Target
+end
+
+-- Handle mouse input for aim lock activation
+local Holding = false
+UserInputService.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton2 then
+        Holding = true
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton2 then
+        Holding = false
+    end
+end)
+
+-- Main loop to handle aiming and rendering the FOV circle
+RunService.RenderStepped:Connect(function()
+    -- Update FOV circle
+    FOVCircle.Position = UserInputService:GetMouseLocation()
+    FOVCircle.Radius = CircleRadius
+    FOVCircle.Color = CircleColor
+    FOVCircle.Visible = CircleVisible and AimbotEnabled -- Toggle visibility based on AimbotEnabled
+    FOVCircle.Transparency = CircleTransparency
+    FOVCircle.Thickness = CircleThickness
+
+    -- Aimbot functionality
+    if Holding and AimbotEnabled then
+        local targetPlayer = GetClosestPlayer()
+        if targetPlayer then
+            local targetPart = targetPlayer.Character and targetPlayer.Character:FindFirstChild(AimPart)
+            if targetPart then
+                local targetPosition = targetPart.Position
+                local lookVector = (targetPosition - Camera.CFrame.Position).Unit
+                local targetCFrame = CFrame.new(Camera.CFrame.Position, Camera.CFrame.Position + lookVector)
+
+                -- Tween camera to smoothly follow target
+                TweenService:Create(Camera, TweenInfo.new(Sensitivity, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {CFrame = targetCFrame}):Play()
+            end
+        end
+    end
+end)
+
+ply:AddLabel('Player Toggles')
+ply2:AddLabel('Player Sliders')
+
+-- Add Toggles and Sliders
+ply:AddToggle('Aim Lock', {
+    Text = 'Aim Lock',
+    Default = false,
+    Callback = function(state)
+        AimbotEnabled = state
+    end
+})
+
+ply2:AddToggle('Circle Visibility', {
+    Text = 'Circle Visibility',
+    Default = false,
+    Callback = function(state)
+        CircleVisible = state
+    end
+}):AddColorPicker('Circle Color', {
+    Default = Color3.new(0, 0, 255),
+    Title = 'Circle Color',
+    Transparency = 0,
+
+    Callback = function(color)
+        CircleColor = color
+    end
+})
+
+ply:AddToggle('Team Check', {
+    Text = 'Team Check',
+    Default = false,
+    Callback = function(state)
+        TeamCheck = state
+    end
+})
+
+ply2:AddSlider('FOV Size', {
+    Text = 'FOV Size',
+    Default = 80,
+    Min = 10,
+    Max = 200,
+    Rounding = 0,
+    Callback = function(value)
+        CircleRadius = value
+    end
+})
+
+ply2:AddSlider('Circle Transparency', {
+    Text = 'Circle Transparency',
+    Default = 0.5,
+    Min = 0.01,
+    Max = 1,
+    Rounding = 0,
+    Callback = function(value)
+        CircleTransparency = value
+        FOVCircle.Transparency = value
+    end
+})
+
+ply2:AddSlider('Circle Thickness', {
+    Text = 'Circle Thickness',
+    Default = 1,
+    Min = 1,
+    Max = 10,
+    Rounding = 0,
+    Callback = function(value)
+        CircleThickness = value
+        FOVCircle.Thickness = value
+    end
+})
+
+ply2:AddButton('Sensitivity 0.1', function()
+    Sensitivity = 0.1
+end)
+
+ply2:AddButton('Sensitivity 0', function()
+    Sensitivity = 0
+end)
+
+ply:AddToggle('Exclude JP', {
+    Text = 'Exclude JP',
+    Default = false,
+    Callback = function(state)
+        ExcludeJP = state
+    end
+})
+
+ply:AddToggle('Exclude cogworks', {
+    Text = 'Exclude cogworks',
+    Default = false,
+    Callback = function(state)
+        ExcludeCogworks = state
+    end
+})
+
+ply:AddToggle('Exclude PhantomLord157', {
+    Text = 'Exclude PhantomLord157',
+    Default = false,
+    Callback = function(state)
+        ExcludePhantomLord157 = state
+    end
+})
+
+ply:AddToggle('Exclude Venster', {
+    Text = 'Exclude Venster',
+    Default = false,
+    Callback = function(state)
+        ExcludeVenster = state
+    end
+})
+
+ply:AddToggle('Exclude Monke', {
+    Text = 'Exclude Monke',
+    Default = false,
+    Callback = function(state)
+        ExcludeMonke = state
+    end
+})
+
+ply:AddToggle('Wall Check', {
+    Text = 'Wall Check',
+    Default = false,
+    Callback = function(state)
+        WallCheckEnabled = state
+    end
+})
+
+ply:AddDropdown('Aim Part', {
+    Values = {'Head', 'Torso', 'Right Arm', 'Left Arm', 'Right Leg', 'Left Leg'},
+    Default = 1,
+    Multi = false,
+
+    Text = 'Aim Lock Part',
+    Tooltip = 'Select Part',
+
+    Callback = function(value)
+        AimPart = value
+    end
+})
+
+World:AddButton('Fullbright', function()
+    while wait(0.1) do
+        local Lighting = game:GetService("Lighting")
+        Lighting.Ambient = Color3.new(1, 1, 1)
+        Lighting.OutdoorAmbient = Color3.new(1, 1, 1)
+    end
+end)
+
+World:AddButton('No Fog', function()
+    Lighting = game:GetService("Lighting")
+    Lighting.FogEnd = 100000
+        for i,v in pairs(Lighting:GetDescendants()) do
+        if v:IsA("Atmosphere") then
+            v:Destroy()
+        end
+    end
+end)
+
+-- Add toggle for the watermark visibility
+-- Watermark Toggle
+ui:AddToggle('showwatermark', {
+    Text = "Show Watermark",
+    Default = true,  -- Set to true by default
+    Callback = function(value)
+        -- Update visibility of the watermark text based on the toggle
+        text.Visible = value
+    end
+})
+
+local RunService = game:GetService("RunService")
+
+-- Function to update top-left position
+local function updateTopLeftPosition()
+    return Vector2.new(10, 10) -- 10 pixels from the top and left
+end
+
+-- Watermark Drawing Elements
+local text = Drawing.new("Text")
+text.Text = "Nexus.Core | v3.0.0 | fps | ping"
+text.Size = 13
+text.Font = 1
+text.Outline = true
+text.Transparency = 1
+text.Visible = true
+text.Color = Color3.new(0, 0, 255)
+text.ZIndex = 1
+
+-- FPS and ping update variables
+local FrameTimer = tick()
+local FrameCounter = 0
+local FPS = 60
+
+RunService.Stepped:Connect(function()
+    local topLeftPos = updateTopLeftPosition()
+
+    -- Update the position of each element dynamically
+    text.Position = topLeftPos
+
+    -- FPS and ping update
+    FrameCounter = FrameCounter + 1
+    if (tick() - FrameTimer) >= 1 then
+        FPS = FrameCounter
+        FrameTimer = tick()
+        FrameCounter = 0
+    end
+
+    text.Text = title:format(
+        "3.0.0",
+        math.floor(FPS),
+        math.floor(game:GetService('Stats').Network.ServerStatsItem['Data Ping']:GetValue())
+    )
+end)
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Camera = workspace.CurrentCamera
+
+local Typing = false
+
+local HorizontalLine = Drawing.new("Line")
+local VerticalLine = Drawing.new("Line")
+
+local SendNotifications = true  -- Toggle for notifications
+local DefaultSettings = false  -- Load default settings if true
+local ToMouse = false  -- Crosshair follows mouse if true, stays centered otherwise
+
+_G.CrosshairVisible = false  -- Initial visibility of crosshair
+_G.CrosshairSize = 20  -- Initial size of the crosshair
+local CrosshairThickness = 2  -- Initial thickness
+_G.CrosshairColor = Color3.fromRGB(0, 255, 0)  -- Initial color
+local CrosshairTransparency = 1  -- Initial transparency
+
+local DisableKey = Enum.KeyCode.KeypadFour  -- Key to toggle crosshair
+
+-- Render function for the crosshair
+RunService.RenderStepped:Connect(function()
+    -- Update viewport size and axis position
+    local ViewportSize_ = Camera.ViewportSize / 2
+    local Axis_X, Axis_Y = ViewportSize_.X, ViewportSize_.Y
+    local Real_Size = _G.CrosshairSize / 2
+
+    -- Update line properties
+    HorizontalLine.Color = _G.CrosshairColor
+    HorizontalLine.Thickness = CrosshairThickness
+    HorizontalLine.Visible = _G.CrosshairVisible
+    HorizontalLine.Transparency = CrosshairTransparency
+
+    VerticalLine.Color = _G.CrosshairColor
+    VerticalLine.Thickness = CrosshairThickness
+    VerticalLine.Visible = _G.CrosshairVisible
+    VerticalLine.Transparency = CrosshairTransparency
+
+    if ToMouse then
+        -- Position lines to follow mouse
+        local mousePos = UserInputService:GetMouseLocation()
+        HorizontalLine.From = Vector2.new(mousePos.X - Real_Size, mousePos.Y)
+        HorizontalLine.To = Vector2.new(mousePos.X + Real_Size, mousePos.Y)
+
+        VerticalLine.From = Vector2.new(mousePos.X, mousePos.Y - Real_Size)
+        VerticalLine.To = Vector2.new(mousePos.X, mousePos.Y + Real_Size)
+    else
+        -- Center lines on screen
+        HorizontalLine.From = Vector2.new(Axis_X - Real_Size, Axis_Y)
+        HorizontalLine.To = Vector2.new(Axis_X + Real_Size, Axis_Y)
+
+        VerticalLine.From = Vector2.new(Axis_X, Axis_Y - Real_Size)
+        VerticalLine.To = Vector2.new(Axis_X, Axis_Y + Real_Size)
+    end
+end)
+
+-- Load default settings if enabled
+if DefaultSettings then
+    _G.CrosshairVisible = true
+    _G.CrosshairSize = 25
+    CrosshairThickness = 1
+    _G.CrosshairColor = Color3.fromRGB(40, 90, 255)
+    CrosshairTransparency = 0.15
+    DisableKey = Enum.KeyCode.Q
+end
+
+-- Typing state to disable crosshair toggle during text input
+UserInputService.TextBoxFocused:Connect(function()
+    Typing = true
+end)
+
+UserInputService.TextBoxFocusReleased:Connect(function()
+    Typing = false
+end)
+
+-- Toggle crosshair visibility with the assigned key
+UserInputService.InputBegan:Connect(function(input)
+    if input.KeyCode == DisableKey and not Typing then
+        _G.CrosshairVisible = not _G.CrosshairVisible
+
+        if SendNotifications then
+            game:GetService("StarterGui"):SetCore("SendNotification", {
+                Title = "Operation Nexus Private",
+                Text = "Crosshair visibility: " .. tostring(_G.CrosshairVisible),
+                Duration = 5
+            })
+        end
+    end
+end)
+
+Crosshair:AddToggle('Enable Crosshair', {
+    Text = 'Enable CrossHair',
+    Default = false,
+    Callback = function(state)
+        _G.CrosshairVisible = state
+    end
+}):AddColorPicker('Crosshair Color', {
+    Default = Color3.new(1, 1, 1),
+    Title = 'Crosshair Color',
+    Transparency = 0,
+    Callback = function(value)
+        _G.CrosshairColor = value
+    end
+})
+
+Crosshair:AddSlider('Crosshair Size', {
+    Text = 'Crosshair Size',
+    Default = 20,
+    Min = 1,
+    Max = 50,
+    Rounding = 0,
+    Callback = function(value)
+        _G.CrosshairSize = value
+    end
+})
+
+Crosshair:AddSlider('Crosshair Thickness (Not Working)', {
+    Text = 'Crosshair Thickness (Not Working)',
+    Default = 1,
+    Min = 1,
+    Max = 50,
+    Rounding = 0,
+    Callback = function(value)
+        _G.CrosshairThickness = value
+    end
+})
+
+local espEnabled = true
+local showName = true
+local showHealth = true
+local showDistance = true
+local chamsEnabled = true
+local labelOffset = Vector3.new(0, 3, 0)
+local distanceType = 'Feet'
+
+local function calculateDistance(player)
+    local localPlayer = game.Players.LocalPlayer
+    if player.Character and localPlayer.Character then
+        local playerHRP = player.Character:FindFirstChild("HumanoidRootPart")
+        local localHRP = localPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if playerHRP and localHRP then
+            return (playerHRP.Position - localHRP.Position).magnitude
+        end
+    end
+    return 0
+end
+
+local function convertDistance(distanceInStuds)
+    if distanceType == 'Feet' then
+        return distanceInStuds * 0.28 * 3.28084
+    elseif distanceType == 'Meters' then
+        return distanceInStuds * 0.28
+    elseif distanceType == 'Yards' then
+        return distanceInStuds * 0.28 * 1.09361
+    elseif distanceType == 'Inches' then
+        return distanceInStuds * 0.28 * 39.3701
+    elseif distanceType == 'Centimeters' then
+        return distanceInStuds * 0.28 * 100
+    end
+    return distanceInStuds
+end
+
+local function createLabel(player)
+    if player.Character then
+        local hrp = player.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            local label = Instance.new("BillboardGui")
+            label.Size = UDim2.new(0, 200, 0, 50)
+            label.Adornee = hrp
+            label.Name = player.Name .. "Label"
+            label.Parent = player.Character
+            label.StudsOffset = labelOffset
+            label.AlwaysOnTop = true
+
+            local textLabel = Instance.new("TextLabel")
+            textLabel.Size = UDim2.new(1, 0, 1, 0)
+            textLabel.BackgroundTransparency = 1
+            textLabel.TextColor3 = Color3.new(1, 1, 1)
+            textLabel.TextStrokeTransparency = 0
+            textLabel.Parent = label
+
+            return label, textLabel
+        end
+    end
+end
+
+local function createChams(player)
+    if player.Character then
+        local highlight = Instance.new("Highlight")
+        highlight.Name = player.Name .. "Highlight"
+        highlight.Adornee = player.Character
+        highlight.FillColor = Color3.new(0, 0, 0)
+        highlight.OutlineTransparency = 0
+        highlight.Parent = player.Character
+        return highlight
+    end
+end
+
+local function updateESP()
+    for _, player in ipairs(game.Players:GetPlayers()) do
+        if player ~= game.Players.LocalPlayer and player.Character then
+            local hrp = player.Character:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                local existingLabel = player.Character:FindFirstChild(player.Name .. "Label")
+                local existingHighlight = player.Character:FindFirstChild(player.Name .. "Highlight")
+
+                if espEnabled then
+                    if not existingLabel then
+                        local label, textLabel = createLabel(player)
+
+                        local function updateText()
+                            local displayText = ""
+                            if showName then
+                                displayText = player.Name
+                            end
+                            if showHealth then
+                                local humanoid = player.Character and player.Character:FindFirstChild("Humanoid")
+                                local health = humanoid and humanoid.Health or 0
+                                health = math.floor(health * 10) / 10
+                                displayText = displayText .. (displayText ~= "" and " | " or "") .. "Health: " .. health
+                            end
+                            if showDistance then
+                                local distance = calculateDistance(player)
+                                displayText = displayText .. (displayText ~= "" and " | " or "") .. "Distance: " .. string.format("%.1f %s", convertDistance(distance), distanceType)
+                            end
+                            textLabel.Text = displayText
+                        end
+
+                        updateText()
+
+                        player.CharacterAdded:Connect(function(newCharacter)
+                            label.Adornee = newCharacter:WaitForChild("HumanoidRootPart")
+                        end)
+
+                        player:GetPropertyChangedSignal("Character"):Connect(function()
+                            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                                label.Adornee = player.Character:FindFirstChild("HumanoidRootPart")
+                                updateText()
+                            end
+                        end)
+                        game:GetService("RunService").RenderStepped:Connect(updateText)
+                    end
+                else
+                    if existingLabel then
+                        existingLabel:Destroy()
+                    end
+                end
+
+                if chamsEnabled then
+                    if not existingHighlight then
+                        createChams(player)
+                    end
+                else
+                    if existingHighlight then
+                        existingHighlight:Destroy()
+                    end
+                end
+            end
+        end
+    end
+end
+
+game:GetService("RunService").RenderStepped:Connect(function()
+    updateESP()
+end)
+
+
+ESPS:AddToggle('Enable ESP', {
+    Text = 'ESP',
+    Default = false,
+    Callback = function(state)
+        espEnabled = state
+        updateESP()
+    end
+}):AddKeyPicker('espbind', {
+    Default = 'None',
+    SyncToggleState = true,
+    Mode = 'Toggle',
+    Text = 'ESP Keybind',
+    NoUI = false,
+    Callback = function(Value)
+        if Value and espEnabled then
+            espEnabled = not espEnabled
+            updateESP()
+        end
+    end,
+})
+
+ESPS:AddToggle('Show Name', {
+    Text = 'Show Name',
+    Default = true,
+    Callback = function(state)
+        showName = state
+        updateESP()
+    end
+}):AddKeyPicker('showNameBind', {
+    Default = 'None',
+    SyncToggleState = true,
+    Mode = 'Toggle',
+    Text = 'Show Name Keybind',
+    NoUI = false,
+    Callback = function(Value)
+        if Value then
+            showName = not showName
+            updateESP()
+        end
+    end,
+})
+
+ESPS:AddToggle('Show Health', {
+    Text = 'Show Health',
+    Default = true,
+    Callback = function(state)
+        showHealth = state
+        updateESP()
+    end
+}):AddKeyPicker('showHealthBind', {
+    Default = 'None',
+    SyncToggleState = true,
+    Mode = 'Toggle',
+    Text = 'Show Health Keybind',
+    NoUI = false,
+    Callback = function(Value)
+        if Value then
+            showHealth = not showHealth
+            updateESP()
+        end
+    end,
+})
+
+ESPS:AddToggle('Show Distance', {
+    Text = 'Show Distance',
+    Default = true,
+    Callback = function(state)
+        showDistance = state
+        updateESP()
+    end
+}):AddKeyPicker('showDistanceBind', {
+    Default = 'None',
+    SyncToggleState = true,
+    Mode = 'Toggle',
+    Text = 'Show Distance Keybind',
+    NoUI = false,
+    Callback = function(Value)
+        if Value then
+            showDistance = not showDistance
+            updateESP()
+        end
+    end,
+})
+
+ESPS:AddToggle('Enable Chams', {
+    Text = 'Chams',
+    Default = false,
+    Callback = function(state)
+        chamsEnabled = state
+        updateESP()
+    end
+}):AddKeyPicker('chamsBind', {
+    Default = 'None',
+    SyncToggleState = true,
+    Mode = 'Toggle',
+    Text = 'Chams Keybind',
+    NoUI = false,
+    Callback = function(Value)
+        if Value then
+            chamsEnabled = not chamsEnabled
+            updateESP()
+        end
+    end,
+})
+
+ESPS:AddDropdown('Distance Type', {
+    Values = {'Studs', 'Feet', 'Meters', 'Yards', 'Inches', 'Centimeters'},
+    Default = 2, -- Default to Feet
+    Multi = false,
+    
+    Text = 'Distance Measurement',
+    Tooltip = 'Select Distance Type',
+    
+    Callback = function(value)
+        distanceType = value
+        -- Update existing labels with the new distance type
+        for _, player in pairs(game.Players:GetPlayers()) do
+            if player.Character and player ~= game.Players.LocalPlayer then
+                local character = player.Character
+                local distanceLabel = character:FindFirstChild(player.Name .. "Label")
+                if distanceLabel then
+                    local textLabel = distanceLabel:FindFirstChild("TextLabel")
+                    if textLabel then
+                        local distanceInStuds = calculateDistance(player)
+                        textLabel.Text = string.format("%.1f %s", convertDistance(distanceInStuds), distanceType)
+                    end
+                end
+            end
+        end
+    end
+})
+
+ESPS:AddButton('Update ESP', function()
+    updateESP()
+end)
+
+
+
+--[[
+
+game.Workspace.Map."Gas Station Shop".Loot
+game.Workspace.Map."".Loot
+
+parna = parent.name
+
+make label text = parna
+
+Locker
+DuffelBag
+Case
+MedBox
+Safe
+
+Ruins 1069, 36, 307
+Hole 678, 37, 375
+
+]]--
