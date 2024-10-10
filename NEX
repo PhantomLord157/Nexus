@@ -1,3 +1,13 @@
+
+local environment = GetEnvironment() -- Hypothetical function that retrieves environment
+
+if not environment then
+    error("Environment is not initialized. Check dependencies.")
+end
+
+-- Now safe to access properties
+local someValue = environment.someProperty
+
 if not memorystats then memorystats={} memorystats.cache=function(a)end memorystats.restore=function(a)end end
 for i,v in pairs(({"Internal","HttpCache","Instances","Signals","Script","PhysicsCollision","PhysicsParts","GraphicsSolidModels","GraphicsMeshParts","GraphicsParticles","GraphicsParts","GraphicsSpatialHash","GraphicsTerrain","GraphicsTexture","GraphicsTextureCharacter","Sounds","StreamingSounds","TerrainVoxels","Gui","Animation","Navigation","GeometryCSG"})) do
     memorystats.cache(v)
@@ -3648,12 +3658,3 @@ for i,v in pairs(({"Internal","HttpCache","Instances","Signals","Script","Physic
     memorystats.restore(v)
 end
 return Library, Toggles, Options -- stupid fix for getgenv() not working...
-
-local environment = GetEnvironment() -- Hypothetical function that retrieves environment
-
-if not environment then
-    error("Environment is not initialized. Check dependencies.")
-end
-
--- Now safe to access properties
-local someValue = environment.someProperty
