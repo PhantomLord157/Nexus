@@ -3012,7 +3012,7 @@ function Library:CreateWindow(...)
     Library:AddToRegistry(MainSectionOuter, {
         BackgroundColor3 = 'BackgroundColor';
         BorderColor3 = 'OutlineColor';
-    });
+    }, true)
 
     local MainSectionInner = Library:Create('Frame', {
         BackgroundColor3 = Library.BackgroundColor;
@@ -3026,7 +3026,8 @@ function Library:CreateWindow(...)
 
     Library:AddToRegistry(MainSectionInner, {
         BackgroundColor3 = 'BackgroundColor';
-    });
+    }, true)
+
 
     local TabArea = Library:Create('Frame', {
         BackgroundTransparency = 1;
